@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}</style>
+<title>Gate B12 Emergency Door</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: airport wayfinding band on top, live scene beside a field control panel, then the state chart and I/O as a maintenance readout. */
+:root{
+  --bg:#ECEFF2; --panel:#FFFFFF; --ink:#1C232B; --muted:#5A6573; --line:#D2D8DF; --soft:#F4F6F8;
+  --sign:#FFC72C; --signbg:#262B31; --exit:#0B8A4B; --alarm:#D3241C; --amber:#E8920F; --steel:#3E4A57;
+  --display:"Barlow","Arial Narrow",Arial,sans-serif; --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161B; --panel:#1A2027; --ink:#E5EAEF; --muted:#9AA6B3; --line:#2B343E; --soft:#212831;
+  --sign:#FFC72C; --signbg:#0B0E11; --exit:#22B266; --alarm:#F0483F; --amber:#F2A33A; --steel:#AFC0D0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161B; --panel:#1A2027; --ink:#E5EAEF; --muted:#9AA6B3; --line:#2B343E; --soft:#212831;
+  --sign:#FFC72C; --signbg:#0B0E11; --exit:#22B266; --alarm:#F0483F; --amber:#F2A33A; --steel:#AFC0D0; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--body)}
+.band{background:var(--signbg);color:#fff;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px}
+.band .in{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.gate{font:700 26px/1 var(--display);background:var(--sign);color:#1B1E22;padding:6px 10px;border-radius:3px;letter-spacing:.02em}
+.band h1{font:600 24px/1.15 var(--display);margin:0;letter-spacing:.01em;text-wrap:balance}
+.band h1 span{color:var(--sign)}
+.exitpill{margin-left:auto;display:flex;align-items:center;gap:8px;background:#0B8A4B;color:#fff;font:600 14px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;border-radius:3px}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 40px;display:grid;gap:18px}
+.lede{max-width:78ch;color:var(--muted);margin:0}
+.lede b{color:var(--ink);font-weight:600}
+.lede a{color:inherit}
+.main{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(300px,1fr);gap:18px;align-items:start}
+@media (max-width:980px){.main{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;min-width:0}
+.scene{padding:0;overflow:hidden}
+.scene canvas{display:block;width:100%;height:auto;aspect-ratio:900/760;max-width:100%;background:#dfe9f1}
+.bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid var(--line)}
+.bar .lbl{font:600 12px/1 var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg button{border:0;border-right:1px solid var(--line);background:var(--panel);color:var(--ink);font:500 13px/1 var(--mono);padding:7px 9px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);font:500 14px/1.1 var(--body);padding:8px 11px;border-radius:4px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+button:focus-visible{outline:2px solid var(--sign);outline-offset:2px}
+.side{display:grid;gap:14px}
+.sec{padding:14px}
+.sec h2{font:600 13px/1 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sec h2 small{font:400 12px/1 var(--mono);letter-spacing:0;text-transform:none}
+.scen{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scen button:last-child:nth-child(odd){grid-column:1/-1}
+.scen button{text-align:left;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:5px;padding:9px 10px;cursor:pointer;font:600 15px/1.15 var(--display);letter-spacing:.01em}
+.scen button small{display:block;font:400 12.5px/1.3 var(--body);color:var(--muted);margin-top:3px;letter-spacing:0}
+.scen button:hover{border-color:var(--muted)}
+.scen button.on{border-color:var(--sign);box-shadow:inset 0 0 0 1px var(--sign)}
+.say{margin:10px 0 0;min-height:2.6em;font:500 14px/1.35 var(--body);color:var(--ink)}
+.say:empty::before{content:"Pick a scenario, or work the controls below yourself.";color:var(--muted);font-weight:400}
+.field{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:#BFC6CC;border-radius:6px;padding:12px 10px;border:1px solid #9AA3AB}
+.ctl{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.ctl .tag{font:600 11px/1.1 var(--display);letter-spacing:.06em;color:#20262C;background:#F2F2EE;border:1px solid #8F979F;padding:3px 5px;border-radius:2px;text-transform:uppercase}
+.ctl .hint{font:400 11.5px/1.25 var(--body);color:#2E363E}
+.knob,.push{position:relative;width:64px;height:64px;border-radius:50%;border:0;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none}
+.knob{background:radial-gradient(circle at 40% 35%,#4b5560,#20262c 70%);box-shadow:0 2px 0 #0003}
+.knob::after{content:"";position:absolute;left:50%;top:9px;width:10px;height:46px;margin-left:-5px;border-radius:5px;background:#D9DEE3;transform:rotate(-45deg);transition:transform .2s}
+.knob[aria-pressed="true"]::after{transform:rotate(45deg)}
+.push .ring{position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(var(--sign) calc(var(--p,0)*1turn),transparent 0);mask:radial-gradient(circle,transparent 34px,#000 35px);-webkit-mask:radial-gradient(circle,transparent 34px,#000 35px)}
+.push.red{background:radial-gradient(circle at 40% 35%,#ff6b5e,#b5150e 70%);box-shadow:0 5px 0 #6d0c07,0 6px 6px #0004}
+.push.grn{background:radial-gradient(circle at 40% 35%,#59d08e,#127a42 70%);box-shadow:0 5px 0 #0b4a28,0 6px 6px #0004}
+.push.blu{background:radial-gradient(circle at 40% 35%,#6aa6e8,#1d5aa6 70%);box-shadow:0 5px 0 #133b6c,0 6px 6px #0004}
+.push[aria-pressed="true"]{transform:translateY(4px);box-shadow:0 1px 0 #0006}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--line);border-radius:5px;background:var(--soft)}
+.mini b{font:600 13px/1.1 var(--display);letter-spacing:.06em;text-transform:uppercase}
+.mini .btn{width:100%;text-align:center}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meter{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--amber)}
+.mini .k{font:400 12px/1.3 var(--mono);color:var(--muted)}
+.lower{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(300px,1fr);gap:18px;align-items:start}
+@media (max-width:980px){.lower{grid-template-columns:minmax(0,1fr)}}
+.chart{overflow-x:auto}
+.chart svg{display:block;min-width:820px;width:100%;height:auto}
+.chart .node rect{fill:var(--soft);stroke:var(--line);stroke-width:1.2}
+.chart .node text{font:500 12.5px var(--mono);fill:var(--ink)}
+.chart .node.on rect{fill:var(--sign);stroke:#1B1E22;stroke-width:2}
+.chart .node.on text{fill:#1B1E22}
+.chart .node.alarm.on rect{fill:var(--alarm);stroke:var(--alarm)}
+.chart .node.alarm.on text{fill:#fff}
+.chart .edge{stroke:var(--muted);stroke-width:1.4;fill:none}
+.chart .tl{font:500 12px var(--mono);fill:var(--muted)}
+.chart .tl.hot{fill:var(--alarm);font-weight:600}
+.chart .edge.hot{stroke:var(--alarm);stroke-width:2.6}
+.chart .hd{font:600 12px var(--display);letter-spacing:.1em;text-transform:uppercase;fill:var(--muted)}
+.chart .note{font:400 11.5px var(--mono);fill:var(--muted)}
+.chart .note.hot{fill:var(--alarm);font-weight:600}
+.io{display:grid;grid-template-columns:1fr;gap:2px;font:400 13px/1.3 var(--mono)}
+.io .h{font:600 12px/1 var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:8px 0 4px}
+.io .r{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:8px;align-items:center;padding:3px 0;border-bottom:1px dashed var(--line)}
+.io .r span:nth-child(2){overflow-wrap:anywhere}
+.io .r em{font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums}
+.lamp{width:12px;height:12px;border-radius:50%;background:var(--line);box-shadow:inset 0 0 0 1px #0002}
+.lamp.on{background:var(--exit)}
+.lamp.on.r{background:var(--alarm)} .lamp.on.o{background:var(--amber)}
+.log{list-style:none;margin:0;padding:0;font:400 13px/1.35 var(--mono);display:grid;gap:4px;max-height:260px;overflow:auto}
+.log li{display:grid;grid-template-columns:58px 40px minmax(0,1fr);gap:6px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.log li b{color:var(--alarm);font-weight:600}
+.log li span{overflow-wrap:anywhere}
+.log li i{font-style:normal;color:var(--muted);display:block;font-family:var(--body);font-size:12.5px}
+.log:empty::before{content:"Transitions will be listed here as they fire.";color:var(--muted);font-family:var(--body)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.notes h3{font:600 15px/1.2 var(--display);margin:0 0 4px;letter-spacing:.02em}
+.notes p{margin:0;color:var(--muted);font-size:14px}
+.notes code{font:400 13px var(--mono);color:var(--ink)}
+.notes a{color:var(--ink)}
+@media (max-width:520px){.scen{grid-template-columns:1fr}.band h1{font-size:20px}.exitpill{margin-left:0}}
+@media (prefers-reduced-motion: reduce){.knob::after{transition:none}}
+</style>
+
+<header class="band"><div class="in">
+  <div class="gate">B12</div>
+  <h1>Emergency Door Controller <span>· Digital Twin</span></h1>
+  <div class="exitpill" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24"><rect x="15" y="3" width="7" height="18" fill="none" stroke="#fff" stroke-width="2"/><circle cx="9" cy="4.5" r="2.2" fill="#fff"/><path d="M8 8l-3 4h4l-2 6M9 8l4 3 3-1M9 12l3 3v5" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Salida · Exit</div>
+</div></header>
+
+<main class="wrap">
+  <p class="lede">A gate-area emergency exit run by the <b>Beckhoff TwinCAT 3</b> controller my team built at TECNUN. The door logic on this page is a line-by-line port of our PLC code: <b>15 states, 37 transitions, one 10 ms scan</b>, with a Raspberry Pi camera and a 3 s heartbeat watchdog. Hold the buttons the way you would on the real panel.</p>
+
+  <div class="main">
+    <section class="card scene" aria-label="Airport gate simulation">
+      <canvas id="scene" width="900" height="760" aria-label="Isometric view of an airport gate with a sliding emergency exit door, passengers, and the door control panel"></canvas>
+      <div class="bar">
+        <span class="lbl">Speed</span>
+        <div class="seg" role="group" aria-label="Simulation speed">
+          <button id="sp1" aria-pressed="true" data-sp="1">1×</button><button id="sp2" aria-pressed="false" data-sp="2">2×</button><button id="sp4" aria-pressed="false" data-sp="4">4×</button>
+        </div>
+        <button class="btn" id="pause" aria-pressed="false">Pause</button>
+        <button class="btn" id="reset">Reset</button>
+      </div>
+    </section>
+
+    <div class="side">
+      <section class="card sec">
+        <h2>Scenarios <small>scripted inputs, real logic</small></h2>
+        <div class="scen">
+          <button id="sc-start" data-sc="start">Start up<small>S1 on, door locks</small></button>
+          <button id="sc-emerg" data-sc="emerg">Emergency button<small>hold 5 s, evacuate, reset</small></button>
+          <button id="sc-poi" data-sc="poi">Person of interest<small>tier 1: security only</small></button>
+          <button id="sc-face" data-sc="face">Wanted match<small>tier 2: evacuate the gate</small></button>
+          <button id="sc-pi" data-sc="pi">Pi link lost<small>watchdog fails open</small></button>
+          <button id="sc-test" data-sc="test">Maintenance test<small>hold TEST 5 s</small></button>
+          <button id="sc-stop" data-sc="stop">Shut down<small>S1 off, door opens</small></button>
+        </div>
+        <p class="say" id="say" aria-live="polite"></p>
+      </section>
+
+      <section class="card sec">
+        <h2>Door panel <small>physical I/O</small></h2>
+        <div class="field">
+          <div class="ctl"><span class="tag">S1 Key</span><button class="knob" id="k-s1" aria-pressed="false" aria-label="Key switch S1"></button><span class="hint">Turn on to arm</span></div>
+          <div class="ctl"><span class="tag">PB2 Emergency</span><button class="push red" id="k-alarm" aria-pressed="false" aria-label="Emergency button, hold 5 seconds"><span class="ring"></span></button><span class="hint">Hold 5 s</span></div>
+          <div class="ctl"><span class="tag">PB1 Test</span><button class="push grn" id="k-test" aria-pressed="false" aria-label="Test and reset button"><span class="ring"></span></button><span class="hint">Tap to reset, hold 5 s for test</span></div>
+        </div>
+      </section>
+
+      <section class="card sec">
+        <div class="row2">
+          <div class="mini">
+            <b>Raspberry Pi</b>
+            <button class="btn" id="k-poi">Flag: person of interest</button>
+            <button class="btn" id="k-face">Flag: wanted match</button>
+            <button class="btn" id="k-link" aria-pressed="true">Heartbeat: connected</button>
+            <div class="meter" aria-hidden="true"><i id="wdbar"></i></div>
+            <span class="k" id="wdtxt">watchdog 0.0 / 3.0 s</span>
+          </div>
+          <div class="mini">
+            <b>Operator HMI</b>
+            <button class="btn" id="k-halarm" aria-pressed="false">Alarm (toggle)</button>
+            <button class="btn" id="k-htest">Test (tap)</button>
+            <span class="k">Wanted-match alarms only clear here: Alarm on, then tap Test.</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="lower">
+    <section class="card sec">
+      <h2>State chart <small id="stname">stDisconnected</small></h2>
+      <div class="chart" id="chart"></div>
+    </section>
+    <div class="side">
+      <section class="card sec">
+        <h2>I/O monitor <small id="clock">t = 0.0 s</small></h2>
+        <div class="io" id="io"></div>
+      </section>
+      <section class="card sec">
+        <h2>Transition log</h2>
+        <ol class="log" id="log"></ol>
+      </section>
+    </div>
+  </div>
+
+  <section class="card sec">
+    <h2>How faithful this is</h2>
+    <div class="notes">
+      <div><h3>Ported as written</h3><p>The state CASE, <code>mTransitions</code>, <code>mOutputs</code>, the R_TRIG / F_TRIG edges, the 5 s TON hold timers and <code>FB_RPi_WATCHDOG</code> run in the same order as <code>MAIN</code>, every 10 ms. Quirks are kept, not fixed.</p></div>
+      <div><h3>Wiring kept too</h3><p>The emergency button and the open limit switch are normally closed, so the code triggers on a falling edge. The stack light follows <code>oLightGreen / Orange / Red</code>; the beacon follows <code>activate_alarm_global</code>.</p></div>
+      <div><h3>Assumed for the twin</h3><p>The stepper takes 3 s end to end. The Pi bumps its heartbeat every 200 ms and sends a 1 s pulse when it flags a face. Passengers, security, ground staff and the airport are illustration: the PLC only drives the door, lights and alarm.</p></div>
+      <div><h3>Proposed, not in our code</h3><p>Two tiers of face flag. The Pi sends the PLC its detection pulse only for a <b>wanted match</b>, which evacuates the gate. A <b>person of interest</b> goes to security alone, so the door stays locked and <code>iFacialDetec</code> never fires. Our controller has a single tier.</p></div>
+      <div><h3>Source</h3><p>Team project by Iñigo Bañuls, Lander Nieto and Ruud Perez, TECNUN, spring 2026. Code: <a href="https://github.com/OTPLander/AIRPORT_EMERTGENCY_DOOR_G2">AIRPORT_EMERTGENCY_DOOR_G2</a>. More of my work: <a href="https://ruud0.github.io/">ruud0.github.io</a>.</p></div>
+    </div>
+  </section>
+</main>
+
+<script>// ============================================================================
+// Line-by-line JavaScript port of the TwinCAT 3 program in
+// github.com/OTPLander/AIRPORT_EMERTGENCY_DOOR_G2 (myPLC/POUs, myPLC/DUTs).
+// MAIN calls, in this order, every 10 ms scan:
+//   EMERGENCY_HDL (state CASE)  ->  RPi_WATCHDOG  ->  mTransitions  ->  mOutputs
+// so a transition computed in one scan changes the state on the next scan,
+// exactly as on the PLC.
+// ============================================================================
+const PLC = (() => {
+  const S = {
+    stDisconnected: 0, stOpening: 1, stClosing: 2, stWaitingRaspberry: 3,
+    stAlarmOpening: 4, stAlarm: 5, stAlarmClosing: 6,
+    stFaceDetectionAlarmOpening: 7, stFaceDetectionAlarm: 8, stFaceDetectionAlarmClosing: 9,
+    stConfigOpening: 10, stConfig: 11, stConfigClosing: 12,
+    stRaspberryFailOpening: 13, stRaspberryFail: 14,
+  };
+  const NAME = Object.fromEntries(Object.entries(S).map(([k, v]) => [v, k]));
+  const SCAN_MS = 10;
+
+  // IEC 61131-3 standard function blocks
+  class R_TRIG { constructor() { this.M = false; this.Q = false; }
+    call(clk) { this.Q = clk && !this.M; this.M = clk; return this.Q; } }
+  class F_TRIG { constructor() { this.M = false; this.Q = false; }
+    call(clk) { this.Q = !clk && !this.M; this.M = !clk; return this.Q; } }
+  class TON { constructor(pt) { this.PT = pt; this.ET = 0; this.Q = false; }
+    call(IN, dt, pt = this.PT) { this.PT = pt;
+      if (!IN) { this.ET = 0; this.Q = false; }
+      else { this.ET = Math.min(this.ET + dt, this.PT); this.Q = this.ET >= this.PT; }
+      return this.Q; } }
+
+  function create() {
+    const T = {}; for (let i = 1; i <= 37; i++) T['T' + i] = false;
+    return {
+      state: S.stDisconnected,
+      transitions: T,
+      inputs: {
+        iSwitch_physical: false,
+        iAlarmButton_preFtrig_physical: true,   // NC mushroom: TRUE while NOT pressed
+        iTestButton_preRtrig_physical: false,   // NO push button
+        iFacialDetec: false, iFacialDetec_RTRIG: new R_TRIG(), iFacialDetec_Q: false,
+        iAlarmButton_ftrig: new F_TRIG(), iTestButton_rtrig: new R_TRIG(),
+        iAlarmButton: false, iTestbutton: false,
+        iHoldAlarm: false, iHoldTest: false, iHoldAlarm_HMI: false, iHoldTest_HMI: false,
+        // declared F_TRIG / R_TRIG in sysInputs (names kept from the source)
+        limitSwitchOpen_rtrig: new F_TRIG(), limitSwitchClose_rtrig: new R_TRIG(),
+        ilimitSwitchOpen: false, ilimitSwitchClose: false,
+        ilimitSwitchOpen_preRtrig: false, ilimitSwitchClose_preRtrig: false,
+        iSwitch_HMI: false, iAlarmButton_HMI: false, iTestButton_HMI: false,
+        iSwitch: false, iAlarmButton_preFtrig: true, iTestButton_preRtrig: false,
+      },
+      outputs: { oAlarm: false, oCloseDoor: false, oOpenDoor: false, oMotorPulse: false, oMotorDir: false,
+                 oLightGreen: false, oLightOrange: false, oLightRed: false },
+      timersCounters: { alarmButtonTImer: new TON(5000), testButtonTimer: new TON(5000),
+                        alarmButtonTimer_HMI: new TON(5000), testButtonTimer_HMI: new TON(5000) },
+      RPiWatchdog: { iHeartbeat: 0, iHeartbeatEcho: 0, iRPiFail: false },
+      // FB_RPi_WATCHDOG local VARs
+      wd: { iHeartbeat_Prev: 0, fbWatchdog: new TON(3000), bRaspberryFail: false },
+      alarm_global: false,     // GVL alarm_global.activate_alarm_global
+      fired: [],               // transitions that changed the state this scan (for the UI)
+    };
+  }
+
+  // FB_EMERGENCY_SYS body
+  function emergencyHdl(s) {
+    const t = s.transitions, st = s.state; let n = st, by = null;
+    const go = (to, tr) => { n = to; by = tr; };
+    switch (st) {
+      case S.stDisconnected: if (t.T1) go(S.stClosing, 'T1'); break;
+      case S.stOpening: if (t.T2) go(S.stDisconnected, 'T2'); break;
+      case S.stClosing: if (t.T3) go(S.stWaitingRaspberry, 'T3'); break;
+      case S.stWaitingRaspberry:
+        if (t.T4) go(S.stOpening, 'T4');
+        else if (t.T7) go(S.stAlarmOpening, 'T7');
+        else if (t.T8) go(S.stFaceDetectionAlarmOpening, 'T8');
+        else if (t.T9) go(S.stConfigOpening, 'T9');
+        else if (t.T5) go(S.stRaspberryFailOpening, 'T5');
+        break;
+      case S.stAlarmOpening:
+        if (t.T15) go(S.stAlarm, 'T15'); else if (t.T37) go(S.stAlarmClosing, 'T37'); break;
+      case S.stAlarm: if (t.T16) go(S.stAlarmClosing, 'T16'); break;
+      case S.stAlarmClosing:
+        if (t.T17) go(S.stWaitingRaspberry, 'T17');
+        else if (t.T26) go(S.stAlarmOpening, 'T26');
+        else if (t.T27) go(S.stFaceDetectionAlarmOpening, 'T27');
+        else if (t.T28) go(S.stConfigOpening, 'T28');
+        break;
+      case S.stFaceDetectionAlarmOpening:
+        if (t.T18) { s.inputs.iFacialDetec = false; go(S.stFaceDetectionAlarm, 'T18'); }
+        else if (t.T35) go(S.stFaceDetectionAlarmClosing, 'T35');
+        break;
+      case S.stFaceDetectionAlarm: if (t.T19) go(S.stFaceDetectionAlarmClosing, 'T19'); break;
+      case S.stFaceDetectionAlarmClosing:
+        if (t.T20) go(S.stWaitingRaspberry, 'T20');
+        else if (t.T29) go(S.stAlarmOpening, 'T29');
+        else if (t.T30) go(S.stFaceDetectionAlarmOpening, 'T30');
+        else if (t.T31) go(S.stConfigOpening, 'T31');
+        break;
+      case S.stConfigOpening:
+        if (t.T21) go(S.stConfig, 'T21'); else if (t.T36) go(S.stConfigClosing, 'T36'); break;
+      case S.stConfig: if (t.T22) go(S.stConfigClosing, 'T22'); break;
+      case S.stConfigClosing:
+        if (t.T23) go(S.stWaitingRaspberry, 'T23');
+        else if (t.T32) go(S.stAlarmOpening, 'T32');
+        else if (t.T33) go(S.stFaceDetectionAlarmOpening, 'T33');
+        else if (t.T34) go(S.stConfigOpening, 'T34');
+        break;
+      case S.stRaspberryFailOpening: if (t.T24) go(S.stRaspberryFail, 'T24'); break;
+      case S.stRaspberryFail: if (t.T25) go(S.stDisconnected, 'T25'); break;
+    }
+    if (by) s.fired.push({ tr: by, from: st, to: n });
+    s.state = n;
+  }
+
+  // FB_RPi_WATCHDOG
+  function watchdog(s, dt) {
+    const w = s.wd;
+    w.fbWatchdog.call(s.RPiWatchdog.iHeartbeat === w.iHeartbeat_Prev, dt);
+    w.bRaspberryFail = w.fbWatchdog.Q;
+    s.RPiWatchdog.iHeartbeatEcho = s.RPiWatchdog.iHeartbeat;
+    w.iHeartbeat_Prev = s.RPiWatchdog.iHeartbeat;
+    s.RPiWatchdog.iRPiFail = w.bRaspberryFail;
+  }
+
+  // METHOD mTransitions
+  function mTransitions(s, dt) {
+    const i = s.inputs, t = s.transitions, st = s.state, tc = s.timersCounters;
+    i.iSwitch = i.iSwitch_physical || i.iSwitch_HMI;
+    i.iAlarmButton_preFtrig = i.iAlarmButton_preFtrig_physical;
+    i.iTestButton_preRtrig = i.iTestButton_preRtrig_physical;
+    i.ilimitSwitchClose = i.limitSwitchClose_rtrig.call(i.ilimitSwitchClose_preRtrig);
+    i.ilimitSwitchOpen = i.limitSwitchOpen_rtrig.call(i.ilimitSwitchOpen_preRtrig);
+    i.iAlarmButton = i.iAlarmButton_ftrig.call(i.iAlarmButton_preFtrig);
+    i.iTestbutton = i.iTestButton_rtrig.call(i.iTestButton_preRtrig);
+    i.iHoldAlarm = tc.alarmButtonTImer.call(!i.iAlarmButton_preFtrig, dt);
+    i.iHoldTest = tc.testButtonTimer.call(i.iTestButton_preRtrig, dt);
+    i.iHoldAlarm_HMI = tc.alarmButtonTimer_HMI.call(i.iAlarmButton_HMI, dt);
+    i.iHoldTest_HMI = tc.testButtonTimer_HMI.call(i.iTestButton_HMI, dt);
+    i.iFacialDetec_Q = i.iFacialDetec_RTRIG.call(i.iFacialDetec);
+    const is = x => st === x;
+    const testLvl = i.iTestButton_preRtrig || i.iTestButton_HMI;
+    const alarmLvl = i.iAlarmButton_preFtrig || i.iAlarmButton_HMI;
+    const testEdge = i.iTestbutton || i.iTestButton_HMI;
+    const alarmEdge = i.iAlarmButton || i.iAlarmButton_HMI;
+    t.T1 = is(S.stDisconnected) && i.iSwitch;
+    t.T2 = is(S.stOpening) && i.ilimitSwitchOpen;
+    t.T3 = is(S.stClosing) && i.ilimitSwitchClose;
+    t.T4 = is(S.stWaitingRaspberry) && !i.iSwitch;
+    t.T5 = is(S.stWaitingRaspberry) && s.RPiWatchdog.iRPiFail;
+    t.T7 = is(S.stWaitingRaspberry) && (i.iHoldAlarm || i.iHoldAlarm_HMI);
+    t.T8 = is(S.stWaitingRaspberry) && i.iFacialDetec_Q;
+    t.T9 = is(S.stWaitingRaspberry) && (i.iHoldTest || i.iHoldTest_HMI);
+    t.T15 = is(S.stAlarmOpening) && i.ilimitSwitchOpen;
+    t.T16 = is(S.stAlarm) && testLvl && alarmLvl;
+    t.T17 = is(S.stAlarmClosing) && i.ilimitSwitchClose;
+    t.T18 = is(S.stFaceDetectionAlarmOpening) && i.ilimitSwitchOpen;
+    t.T19 = is(S.stFaceDetectionAlarm) && testEdge && alarmEdge;
+    t.T20 = is(S.stFaceDetectionAlarmClosing) && i.ilimitSwitchClose;
+    t.T21 = is(S.stConfigOpening) && i.ilimitSwitchOpen;
+    t.T22 = is(S.stConfig) && i.iTestbutton;
+    t.T23 = is(S.stConfigClosing) && i.ilimitSwitchClose;
+    t.T24 = is(S.stRaspberryFailOpening) && i.ilimitSwitchOpen;
+    t.T25 = is(S.stRaspberryFail) && !i.iSwitch;
+    t.T26 = is(S.stAlarmClosing) && i.iHoldAlarm;
+    t.T27 = is(S.stAlarmClosing) && i.iFacialDetec_Q;
+    t.T28 = is(S.stAlarmClosing) && i.iHoldTest;
+    t.T29 = is(S.stFaceDetectionAlarmClosing) && i.iHoldAlarm;
+    t.T30 = is(S.stFaceDetectionAlarmClosing) && i.iFacialDetec_Q;
+    t.T31 = is(S.stFaceDetectionAlarmClosing) && i.iHoldTest;
+    t.T32 = is(S.stConfigClosing) && i.iHoldAlarm;
+    t.T33 = is(S.stConfigClosing) && i.iFacialDetec;
+    t.T34 = is(S.stConfigClosing) && i.iHoldTest;
+    t.T35 = is(S.stFaceDetectionAlarmOpening) && testEdge && alarmEdge;
+    t.T36 = is(S.stConfigOpening) && testEdge && alarmEdge;
+    t.T37 = is(S.stAlarmOpening) && testEdge && alarmEdge;
+  }
+
+  // METHOD mOutputs
+  function mOutputs(s) {
+    const o = s.outputs, st = s.state, any = (...a) => a.includes(st);
+    o.oOpenDoor = any(S.stOpening, S.stAlarmOpening, S.stFaceDetectionAlarmOpening, S.stConfigOpening, S.stRaspberryFailOpening);
+    o.oCloseDoor = any(S.stClosing, S.stAlarmClosing, S.stFaceDetectionAlarmClosing, S.stConfigClosing);
+    s.alarm_global = any(S.stAlarmOpening, S.stAlarm, S.stAlarmClosing, S.stFaceDetectionAlarmOpening,
+      S.stFaceDetectionAlarm, S.stFaceDetectionAlarmClosing, S.stRaspberryFailOpening, S.stRaspberryFail);
+    o.oLightGreen = any(S.stAlarm, S.stFaceDetectionAlarm, S.stConfig, S.stRaspberryFail, S.stDisconnected);
+    o.oLightOrange = any(S.stOpening, S.stClosing, S.stAlarmOpening, S.stAlarmClosing, S.stFaceDetectionAlarmOpening,
+      S.stFaceDetectionAlarmClosing, S.stConfigOpening, S.stConfigClosing, S.stRaspberryFailOpening);
+    o.oLightRed = any(S.stWaitingRaspberry);
+  }
+
+  // One 10 ms PLC scan, MAIN order
+  function scan(s, dt = SCAN_MS) {
+    emergencyHdl(s);
+    watchdog(s, dt);
+    mTransitions(s, dt);
+    mOutputs(s);
+    // FB_STEPPER_CTRL: enabled unless disconnected; DIR = bOpen
+    const en = s.state !== S.stDisconnected && (s.outputs.oOpenDoor || s.outputs.oCloseDoor);
+    s.outputs.oMotorDir = en ? s.outputs.oOpenDoor : false;
+    s.motorEnabled = en;
+  }
+
+  return { S, NAME, SCAN_MS, create, scan };
+})();
+
+</script>
+<script>
+(() => {
+const {S, NAME} = PLC;
+const CAPTURE = !!window.__CAPTURE;
+// ---------------------------------------------------------------- sim state
+let plc, plant, simT, agents, scen, logItems, hot, speed = 1, paused = false;
+const TRAVEL = 3000;
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+let R = rng(7);
+
+function reset(){
+  plc = PLC.create();
+  plant = { door: 1, rpi: true, hbClock: 0, facePulse: 0, camSweep: 0, alarmHeldUI: false, testHeldUI: false, htestTimer: 0, alarmClock: 0, flash: 0, quietClock: 0, sec: null, poi: false, flagTier: null, marsh: false, cordon: 0 };
+  simT = 0; scen = null; logItems = []; hot = {};
+  R = rng(7); makeAgents(); setSay('');
+  syncButtons(); renderLog();
+}
+
+// ---------------------------------------------------------------- plant + scan
+function scanOnce(){
+  const dt = PLC.SCAN_MS; simT += dt;
+  // door actuator: stepper driven by oMotorDir while enabled
+  if (plc.motorEnabled) plant.door = Math.min(1, Math.max(0, plant.door + (plc.outputs.oMotorDir ? 1 : -1) * dt / TRAVEL));
+  plc.inputs.ilimitSwitchClose_preRtrig = plant.door <= 0;
+  plc.inputs.ilimitSwitchOpen_preRtrig = !(plant.door >= 1);     // NC limit switch
+  // Raspberry Pi: heartbeat every 200 ms while connected; face pulse 1 s
+  plant.hbClock += dt;
+  if (plant.rpi && plant.hbClock >= 200){ plant.hbClock = 0; plc.RPiWatchdog.iHeartbeat = (plc.RPiWatchdog.iHeartbeat + 1) % 32767; }
+  if (plant.facePulse > 0){ plant.facePulse -= dt; plc.inputs.iFacialDetec = true; if (plant.facePulse <= 0) plc.inputs.iFacialDetec = false; }
+  if (plant.htestTimer > 0){ plant.htestTimer -= dt; if (plant.htestTimer <= 0 && !plant.htestHeld) plc.inputs.iTestButton_HMI = false; }
+  PLC.scan(plc, dt);
+  for (const f of plc.fired) addLog(f);
+  plc.fired.length = 0;
+  if (scen) stepScenario();
+}
+const WHY = {T1:'S1 switched on',T2:'open limit reached',T3:'close limit reached',T4:'S1 switched off',T5:'Pi heartbeat frozen for 3 s',
+ T7:'emergency held 5 s',T8:'camera flagged a face',T9:'test held 5 s',T15:'open limit reached',T16:'test pressed, emergency released',
+ T17:'close limit reached',T18:'open limit reached',T19:'HMI alarm + test',T20:'close limit reached',T21:'open limit reached',T22:'test tapped',
+ T23:'close limit reached',T24:'open limit reached',T25:'S1 switched off',T26:'emergency held 5 s',T27:'camera flagged a face',T28:'test held 5 s',
+ T29:'emergency held 5 s',T30:'camera flagged a face',T31:'test held 5 s',T32:'emergency held 5 s',T33:'camera flagged a face',T34:'test held 5 s',
+ T35:'test + alarm edge',T36:'test + alarm edge',T37:'test + alarm edge'};
+function addLog(f){
+  logItems.unshift({t: simT, ...f}); if (logItems.length > 30) logItems.pop();
+  hot = {tr: f.tr, until: simT + 1600};
+  renderLog();
+}
+
+// ---------------------------------------------------------------- inputs
+function setAlarm(on){ plant.alarmHeldUI = on; plc.inputs.iAlarmButton_preFtrig_physical = !on; }
+function setTest(on){ plant.testHeldUI = on; plc.inputs.iTestButton_preRtrig_physical = on; }
+function setSwitch(on){ plc.inputs.iSwitch_physical = on; }
+function setLink(on){ plant.rpi = on; }
+function flagFace(){ if (!plant.rpi) return; plant.flagTier = 'wanted'; plant.facePulse = 1000; plant.camSweep = 1800; }
+// Tier 1 (proposed): the Pi alerts security only; no pulse reaches the PLC, so the door stays locked.
+function flagPOI(){ if (!plant.rpi || plant.sec) return; plant.flagTier = 'poi'; plant.poi = true; plant.camSweep = 1800; }
+function setHAlarm(on){ plc.inputs.iAlarmButton_HMI = on; }
+function tapHTest(down){ if (down){ plc.inputs.iTestButton_HMI = true; plant.htestHeld = true; plant.htestTimer = 120; } else { plant.htestHeld = false; if (plant.htestTimer <= 0) plc.inputs.iTestButton_HMI = false; } }
+
+// ---------------------------------------------------------------- scenarios (generators in sim time)
+const until = fn => ({fn});
+function* ensureRunning(){
+  if (!plant.rpi){ setLink(true); yield 400; }
+  if (plc.state === S.stRaspberryFail){ setSwitch(false); yield until(() => plc.state === S.stDisconnected); }
+  if (plc.state !== S.stWaitingRaspberry){
+    if (plc.state === S.stDisconnected || plc.state === S.stOpening){ say('Arming the door first: S1 on (T1), door closes and locks (T3).'); setSwitch(true); }
+    yield until(() => plc.state === S.stWaitingRaspberry);
+    yield 700;
+  }
+}
+const SCEN = {
+  *start(){ if (plc.state !== S.stDisconnected){ yield* ensureRunning(); return; }
+    say('S1 key switch on. T1 starts the stepper closing the door (orange).'); setSwitch(true);
+    yield until(() => plc.state === S.stWaitingRaspberry);
+    say('T3: close limit reached. Door locked (red) while the Pi camera watches the gate.'); yield 2500; },
+  *emerg(){ yield* ensureRunning();
+    say('A passenger holds the emergency button. It has to stay pressed for 5 s, so a bump does not open the door.'); setAlarm(true);
+    yield until(() => plc.state === S.stAlarmOpening); setAlarm(false);
+    say('T7: 5 s hold reached. Beacon on, door sliding open.');
+    yield until(() => plc.state === S.stAlarm);
+    say('T15: open limit reached. Door held open (green). Ground staff guide the gate out and keep everyone inside the assembly area, away from the aircraft.'); yield 7000;
+    say('Staff tap TEST with the emergency button released. T16 closes the door.'); setTest(true); yield 300; setTest(false);
+    yield until(() => plc.state === S.stWaitingRaspberry);
+    say('T17: closed and locked again.'); yield 2500; },
+  *face(){ yield* ensureRunning();
+    say('The camera matches a face to a wanted person. The Pi sends the PLC its detection pulse and dispatches security.'); flagFace();
+    yield until(() => plc.state === S.stFaceDetectionAlarmOpening);
+    say('T8: threat alarm. Beacon on and the door opens for everyone else while officers move in on the flagged passenger.');
+    yield until(() => plant.sec && plant.sec.phase !== 'go');
+    say('Officers hold the flagged passenger away from the exit while ground staff guide everyone else out to the assembly area.');
+    yield until(() => plant.sec && plant.sec.phase === 'escort');
+    say('They walk the passenger back into the terminal, away from the evacuation route.');
+    yield until(() => plc.state === S.stFaceDetectionAlarm && (!plant.sec || plant.sec.phase === 'gone')); yield 1500;
+    say('This alarm only clears from the operator HMI: Alarm on, then Test (T19).'); setHAlarm(true); yield 400; tapHTest(true); yield 150; tapHTest(false); yield 300; setHAlarm(false);
+    yield until(() => plc.state === S.stWaitingRaspberry);
+    say('T20: closed and locked again.'); yield 2500; },
+  *poi(){ yield* ensureRunning();
+    say('The camera rates a face as a person of interest. The Pi alerts security but sends the PLC nothing, so the door stays locked.'); flagPOI();
+    yield until(() => plant.sec && plant.sec.phase === 'hold');
+    say('Two officers approach and speak with the passenger. Nobody else is disturbed.');
+    yield until(() => plant.sec && plant.sec.phase === 'escort');
+    say('They walk the passenger to a screening room in the terminal. The gate stays in service.');
+    yield until(() => !plant.sec); yield 1500; },
+  *pi(){ yield* ensureRunning();
+    say('The Raspberry Pi stops sending its heartbeat. The watchdog timer starts counting.'); setLink(false);
+    yield until(() => plc.state === S.stRaspberryFailOpening);
+    say('T5: no heartbeat for 3 s. The door fails open and the alarm sounds, since a dead camera cannot be trusted.');
+    yield until(() => plc.state === S.stRaspberryFail); yield 5000;
+    say('Recovery: reconnect the Pi, turn S1 off (T25), then back on.'); setLink(true); yield 800; setSwitch(false);
+    yield until(() => plc.state === S.stDisconnected); yield 900; setSwitch(true);
+    yield until(() => plc.state === S.stWaitingRaspberry);
+    say('Back to locked and watching.'); yield 2500; },
+  *test(){ yield* ensureRunning();
+    say('A technician walks up to the door panel.'); plant.techCall = true; const tech = agents.find(a => a.kind === 'tech');
+    yield until(() => tech.on && !(tech.path && tech.path.length));
+    say('The technician holds TEST for 5 s to enter test mode.'); setTest(true);
+    yield until(() => plc.state === S.stConfigOpening); setTest(false);
+    say('T9: test mode. The door opens with no alarm so it can be checked.');
+    yield until(() => plc.state === S.stConfig); yield 3500;
+    say('A single tap on TEST (T22) closes it again.'); setTest(true); yield 250; setTest(false);
+    yield until(() => plc.state === S.stWaitingRaspberry);
+    say('T23: closed and locked.'); plant.techCall = false; yield 2500; },
+  *stop(){ if (plc.state === S.stDisconnected){ say('Already off.'); yield 1500; return; }
+    say('S1 off. From locked, T4 opens the door and the system disconnects.'); setSwitch(false);
+    yield until(() => plc.state === S.stDisconnected); say('T2: open limit reached. System off, door open.'); yield 2500; },
+};
+let sayText = '';
+function say(t){ sayText = t; setSay(t); }
+function setSay(t){ sayText = t; const el = document.getElementById('say'); if (el) el.textContent = t; }
+function runScenario(name){
+  stopScenario(true);
+  scen = {name, gen: SCEN[name](), wait: null};
+  document.querySelectorAll('.scen button').forEach(b => b.classList.toggle('on', b.dataset.sc === name));
+  stepScenario();
+}
+function stopScenario(keepSay){
+  if (!scen) return;
+  setAlarm(false); setTest(false); if (plc.inputs.iTestButton_HMI) tapHTest(false); setHAlarm(false);
+  scen = null; plant.techCall = false; if (!keepSay) setSay('');
+  document.querySelectorAll('.scen button').forEach(b => b.classList.remove('on'));
+}
+function stepScenario(){
+  for (let guard = 0; guard < 20 && scen; guard++){
+    const w = scen.wait;
+    if (w){ if (typeof w === 'number'){ if (simT < scen.until) return; } else if (!w.fn()) return; }
+    const r = scen.gen.next();
+    if (r.done){ scen = null; document.querySelectorAll('.scen button').forEach(b => b.classList.remove('on')); return; }
+    scen.wait = r.value; if (typeof r.value === 'number') scen.until = simT + r.value;
+  }
+}
+
+// ---------------------------------------------------------------- iso projection
+const C = document.getElementById('scene'), ctx = C.getContext('2d');
+const W = 900, H = 760, U = 36, OX = 345, OY = 300, WH = 3.6, CS = 0.8660254;
+let dpr = 1;
+function fit(){ dpr = CAPTURE ? 1 : Math.min(2, window.devicePixelRatio || 1); C.width = W * dpr; C.height = H * dpr; }
+const P = (x, y, z = 0) => [OX + (x - y) * CS * U, OY + (x + y) * 0.5 * U - z * U];
+function poly(pts, fill, stroke, lw = 1){ ctx.beginPath(); pts.forEach((p, i) => { const q = P(...p); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); if (fill){ ctx.fillStyle = fill; ctx.fill(); } if (stroke){ ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); } }
+function line(a, b, col, lw = 1){ const p = P(...a), q = P(...b); ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.stroke(); }
+function shade(hex, f){ const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255;
+  const m = v => Math.max(0, Math.min(255, Math.round(f >= 0 ? v + (255 - v) * f : v * (1 + f))));
+  return `rgb(${m(r)},${m(g)},${m(b)})`; }
+function box(x, y, z, w, d, h, col, opt = {}){
+  const t = opt.top || shade(col, 0.18), l = opt.left || col, r = opt.right || shade(col, -0.18);
+  poly([[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h]], l, opt.edge, 0.8);
+  poly([[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h]], r, opt.edge, 0.8);
+  poly([[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]], t, opt.edge, 0.8);
+}
+// draw in a wall plane: 40 local units = 1 world unit, u along the wall, v downward
+function onPlaneY(x0, y0, z0, fn){ const [sx, sy] = P(x0, y0, z0); ctx.save(); ctx.setTransform(dpr * CS * U / 40, dpr * 0.5 * U / 40, 0, dpr * U / 40, dpr * sx, dpr * sy); fn(); ctx.restore(); }
+function onPlaneX(x0, y0, z0, fn){ const [sx, sy] = P(x0, y0, z0); ctx.save(); ctx.setTransform(dpr * CS * U / 40, -dpr * 0.5 * U / 40, 0, dpr * U / 40, dpr * sx, dpr * sy); fn(); ctx.restore(); }
+function onFloor(x0, y0, fn){ const [sx, sy] = P(x0, y0, 0); ctx.save(); ctx.setTransform(dpr * CS * U / 40, dpr * 0.5 * U / 40, -dpr * CS * U / 40, dpr * 0.5 * U / 40, dpr * sx, dpr * sy); fn(); ctx.restore(); }
+const F = (w, s, fam = 'Barlow') => `${w} ${s}px ${fam === 'mono' ? '"IBM Plex Mono",monospace' : '"Barlow","Arial Narrow",Arial,sans-serif'}`;
+
+// ---------------------------------------------------------------- people
+const CLOTH = ['#3B5B92', '#B5523B', '#2F7D6D', '#8C6A9E', '#C49A3A', '#4A4F57', '#A84F6B', '#5E8C4A', '#2E6FA3', '#7A4E2D'];
+const SKIN = ['#F1C9A5', '#D9A57B', '#B07A55', '#8A5A3C', '#5E3B27'];
+const HAIR = ['#2B2118', '#5A3B22', '#A97C50', '#1C1C1C', '#C8C2B8'];
+const SEATS = []; [4.55, 6.45].forEach(y => { [2.5, 3.1, 3.7, 4.3, 4.9, 5.5, 6.9, 7.5, 8.1, 8.7].forEach(x => SEATS.push({x, y})); });
+function makeAgents(){
+  agents = [];
+  const pick = a => a[Math.floor(R() * a.length)];
+  const mk = (x, y, kind, extra = {}) => agents.push(Object.assign({x, y, hx: x, hy: y, kind, cloth: pick(CLOTH), pants: pick(['#2A2F36', '#3C4654', '#5B4A3C', '#23282E']), skin: pick(SKIN), hair: pick(HAIR),
+      bag: R() < 0.45, alpha: 1, path: null, delay: 0, phase: R() * 6, speed: 1.25 + R() * 0.35, evac: false, face: 1, pause: 1 + R() * 4, fade: 0}, extra));
+  const taken = [0, 2, 3, 6, 9, 11, 13, 14, 17];
+  taken.forEach(i => mk(SEATS[i].x, SEATS[i].y - 0.06, 'sit'));
+  mk(4.4, 1.15, 'gaze'); mk(5.2, 1.0, 'gaze', {flagged: true, bag: false, cloth: '#4A4F57', hair: '#1C1C1C'}); mk(7.4, 1.2, 'gaze');
+  mk(2.6, 2.25, 'queue'); mk(3.2, 2.45, 'queue');
+  mk(10.5, 2.6, 'wander'); mk(6.0, 8.2, 'wander'); mk(12.8, 7.6, 'wander');
+  mk(6.0, 9.1, 'guard', {alpha: 0, cloth: '#1F2E4A', pants: '#1A2233', bag: false, hair: '#1C1C1C', speed: 2.7, g: 0});
+  mk(6.4, 9.1, 'guard', {alpha: 0, cloth: '#1F2E4A', pants: '#1A2233', bag: false, hair: '#5A3B22', speed: 2.5, g: 1});
+  mk(16.5, -1.5, 'marshal', {alpha: 0, cloth: '#F28C28', pants: '#1F2A36', bag: false, hair: '#2B2118', speed: 2.4, m: 0, homeX: 16.5, homeY: -1.5});
+  mk(-4.5, -3.0, 'marshal', {alpha: 0, cloth: '#F28C28', pants: '#1F2A36', bag: false, hair: '#A97C50', speed: 2.4, m: 1, homeX: -4.5, homeY: -3.0});
+  mk(14.6, 8.8, 'tech', {alpha: 0, cloth: '#E7EE3F', pants: '#2A3442', bag: false, hair: '#5A3B22', speed: 1.4});
+}
+function walkTo(a, pts){ a.path = pts.map(p => ({x: p[0], y: p[1]})); }
+function stepAgent(a, dt){
+  if (!a.path || !a.path.length) return false;
+  const t = a.path[0], dx = t.x - a.x, dy = t.y - a.y, d = Math.hypot(dx, dy), v = a.speed * dt;
+  if (t.gate && plant.door < 0.62) return true;           // wait for the door
+  if (d <= v){ a.x = t.x; a.y = t.y; a.path.shift(); } else { a.x += dx / d * v; a.y += dy / d * v; }
+  a.face = (dx - dy) >= 0 ? 1 : -1; a.phase += dt * 9; return true;
+}
+// Security response (illustration, not PLC logic): officers are dispatched the moment the
+// camera flag puts the controller in a face state, reach the passenger while the door opens,
+// keep them off the evacuation route, then walk them back into the terminal.
+const AISLE = 6.2;
+const HOLD = [[0.62, 0.12], [-0.5, 0.42]], ESC = [[0.38, -0.42], [-0.38, -0.42]];
+function updateSecurity(dt){
+  const st = plc.state, sus = agents.find(a => a.flagged), gs = agents.filter(a => a.kind === 'guard');
+  const faceSt = st >= S.stFaceDetectionAlarmOpening && st <= S.stFaceDetectionAlarmClosing;
+  if (plant.sec && plant.sec.mode === 'poi' && faceSt) plant.sec.mode = 'threat';
+  if ((faceSt || plant.poi) && !plant.sec && sus.alpha > 0.5){
+    plant.sec = {phase: 'go', t: 0, mode: faceSt ? 'threat' : 'poi'};
+    sus.held = true; sus.evac = false; sus.path = null; sus.delay = 0; sus.fade = 0; sus.sitting = false;
+    gs.forEach(g => { g.x = 6.0 + g.g * 0.4; g.y = 9.1; g.alpha = 0;
+      const tx = sus.x + HOLD[g.g][0], ty = sus.y + HOLD[g.g][1];
+      walkTo(g, [[AISLE + (g.g ? 0.2 : -0.2), Math.max(ty + 0.6, 2.4)], [tx, ty]]); });
+  }
+  const sec = plant.sec; if (!sec) return;
+  sec.t += dt;
+  const follow = (g, off) => { const tx = sus.x + off[0], ty = sus.y + off[1], dx = tx - g.x, dy = ty - g.y, d = Math.hypot(dx, dy);
+    const k = Math.min(1, dt * 7); g.x += dx * k; g.y += dy * k; g.moving = d > 0.03; if (g.moving){ g.phase += dt * 9; g.face = (dx - dy) >= 0 ? 1 : -1; } };
+  if (sec.phase === 'go'){
+    gs.forEach(g => { g.alpha = Math.min(1, g.alpha + dt * 3); g.moving = stepAgent(g, dt); });
+    sus.moving = false; sus.face = -1;
+    if (gs.every(g => !g.path || !g.path.length)){ sec.phase = 'hold'; sec.t = 0; }
+  } else if (sec.phase === 'hold'){
+    gs.forEach(g => follow(g, HOLD[g.g])); sus.moving = false;
+    if (sec.mode === 'poi' ? sec.t > 2.6 : (sec.t > 1.4 && plant.door > 0.9)){ sec.phase = 'escort'; sec.t = 0; sus.speed = 1.5;
+      walkTo(sus, [[AISLE, Math.max(sus.y + 0.9, 2.3)], [AISLE, 8.7]]); }
+  } else if (sec.phase === 'escort'){
+    sus.moving = stepAgent(sus, dt); gs.forEach(g => follow(g, ESC[g.g]));
+    if (sus.y > 7.9){ const f = dt * 1.6; sus.alpha = Math.max(0, sus.alpha - f); gs.forEach(g => g.alpha = Math.max(0, g.alpha - f)); }
+    if (!sus.path || !sus.path.length || sus.alpha <= 0){ sec.phase = 'gone'; sec.t = 0; sus.alpha = 0; gs.forEach(g => { g.alpha = 0; g.moving = false; }); }
+  } else if (sec.phase === 'gone'){
+    if (sec.mode === 'poi' ? sec.t > 2.5 : (!faceSt && plant.quietClock > 2.5)){
+      plant.poi = false; plant.flagTier = null; sus.x = sus.hx; sus.y = sus.hy; sus.path = null; sus.held = false; sus.speed = 1.25; sus.moving = false; sus.fade = 1; plant.sec = null;
+    }
+  }
+}
+// Ground staff (illustration): meet any evacuation on the apron, wave people toward the
+// assembly area and patrol its far edge so nobody wanders toward the aircraft.
+function updateMarshals(dt, alarm){
+  const ms = agents.filter(a => a.kind === 'marshal');
+  if (alarm && plant.door > 0.12 && !plant.marsh){
+    plant.marsh = true;
+    ms.forEach(m => { m.pause = 0; m.patrol = 0; walkTo(m, m.m === 0 ? [[12.4, -1.7], [9.7, -1.45]] : [[2.4, -2.8]]); });
+  }
+  if (plant.marsh && !alarm && plant.quietClock > 3.4){ plant.marsh = false; ms.forEach(m => walkTo(m, [[m.homeX, m.homeY]])); }
+  ms.forEach(m => {
+    const out = !plant.marsh && (!m.path || !m.path.length);
+    m.alpha = Math.max(0, Math.min(1, m.alpha + (out ? -1 : 1) * dt * 2.5));
+    m.moving = stepAgent(m, dt);
+    if (plant.marsh && m.m === 1 && !m.moving){ m.pause -= dt;
+      if (m.pause <= 0){ m.pause = 1.6; m.patrol ^= 1; walkTo(m, [[m.patrol ? 7.2 : 2.4, -2.8]]); } }
+    if (plant.marsh && m.m === 0 && !m.moving){ m.face = 1; }
+  });
+  plant.cordon = Math.max(0, Math.min(1, plant.cordon + (plant.marsh ? 1 : -1) * dt * 2));
+}
+function updateAgents(dt){
+  const alarm = plc.alarm_global && !plc.outputs.oCloseDoor, st = plc.state;
+  plant.quietClock = alarm ? 0 : plant.quietClock + dt;
+  const rand = (a, b) => a + R() * (b - a);
+  updateSecurity(dt); updateMarshals(dt, alarm);
+  agents.forEach((a, i) => {
+    if (a.kind === 'guard' || a.kind === 'marshal') return;
+    if (a.flagged && a.held) return;
+    if (a.kind === 'tech'){
+      const want = (st >= S.stConfigOpening && st <= S.stConfigClosing) || plant.techCall || (plant.testHeldUI && st === S.stWaitingRaspberry);
+      if (want && !a.on){ a.on = true; a.x = 14.6; a.y = 8.8; walkTo(a, [[14.2, 4.0], [13.55, 1.05]]); }
+      if (!want && a.on && plant.quietClock > 1.5 && !a.path?.length){ a.on = false; walkTo(a, [[14.2, 4.0], [14.6, 8.8]]); }
+      a.alpha += ((a.on || (a.path && a.path.length)) ? 1 : -1) * dt * 2; a.alpha = Math.max(0, Math.min(1, a.alpha));
+      a.moving = stepAgent(a, dt); return;
+    }
+    if (alarm && plant.door > 0.12 && !a.evac){
+      a.evac = true; a.out = false;
+      const j = (i % 5 - 2) / 2;
+      a.delay = 0.1 + Math.hypot(a.x - 11.1, a.y) * 0.03 + R() * 0.6; a.speed = 1.9 + R() * 0.5;
+      walkTo(a, [[11.1 + j * 0.9, 1.25 + R() * 0.7], [11.1 + j * 0.45, 0.1], [11.0 + j * 0.5, -0.75], [rand(1.8, 7.6), rand(-1.15, -2.1)]]);
+      a.path[1].gate = true; a.sitting = false;
+    }
+    if (a.evac && !alarm){
+      if (a.y > 0.15){ a.evac = false; a.speed = 1.25 + R() * 0.35; walkTo(a, [[a.hx, a.hy + (a.kind === 'sit' ? 0.5 : 0)], [a.hx, a.hy]]); a.delay = R() * 0.6; }
+      else if (plant.quietClock > 2.5){ a.fade = -1; }
+    }
+    if (a.fade === -1){ a.alpha -= dt * 1.4; if (a.alpha <= 0){ a.alpha = 0; a.fade = 1; a.x = a.hx; a.y = a.hy; a.path = null; a.evac = false; a.speed = 1.25 + R() * 0.35; } return; }
+    if (a.fade === 1){ a.alpha += dt * 1.2; if (a.alpha >= 1){ a.alpha = 1; a.fade = 0; } }
+    if (a.delay > 0){ a.delay -= dt; a.moving = false; return; }
+    const moved = stepAgent(a, dt); a.moving = moved && !(a.path && a.path[0] && a.path[0].gate && plant.door < 0.62);
+    if (a.evac) return;
+    a.sitting = a.kind === 'sit' && !moved && Math.abs(a.x - a.hx) < 0.01 && Math.abs(a.y - a.hy) < 0.01;
+    if (a.kind === 'wander' && !moved){
+      a.pause -= dt;
+      if (a.pause <= 0){ a.pause = 2 + R() * 5;
+        const band = a.hy < 4 ? [1.6, 3.2] : [7.6, 8.7];
+        walkTo(a, [[rand(1.2, 14.2), rand(band[0], band[1])]]); }
+    }
+  });
+}
+function drawPerson(a){
+  if (a.alpha <= 0.01) return;
+  const [x, y] = P(a.x, a.y, 0), h = U; ctx.save(); ctx.globalAlpha = a.alpha;
+  ctx.fillStyle = 'rgba(20,30,40,.18)'; ctx.beginPath(); ctx.ellipse(x, y, 0.3 * h, 0.13 * h, 0, 0, 7); ctx.fill();
+  const sw = a.moving ? Math.sin(a.phase) * 0.13 * h : 0, bob = a.moving ? Math.abs(Math.cos(a.phase)) * 0.03 * h : 0;
+  const base = a.sitting ? y - 0.45 * h : y - bob;
+  if (!a.sitting){
+    ctx.lineCap = 'round'; ctx.strokeStyle = a.pants; ctx.lineWidth = 0.12 * h;
+    ctx.beginPath(); ctx.moveTo(x - 0.07 * h, base - 0.82 * h); ctx.lineTo(x - 0.07 * h + sw, y - 0.04 * h);
+    ctx.moveTo(x + 0.07 * h, base - 0.82 * h); ctx.lineTo(x + 0.07 * h - sw, y - 0.04 * h); ctx.stroke();
+  }
+  const top = a.sitting ? base - 0.66 * h : base - 1.46 * h;
+  if (a.bag && !a.sitting){ const bx = x + a.face * -0.34 * h; ctx.fillStyle = '#30363D'; ctx.fillRect(bx - 0.1 * h, y - 0.48 * h, 0.2 * h, 0.44 * h);
+    ctx.strokeStyle = '#30363D'; ctx.lineWidth = 0.03 * h; ctx.beginPath(); ctx.moveTo(bx, y - 0.48 * h); ctx.lineTo(bx + a.face * 0.08 * h, y - 0.8 * h); ctx.stroke(); }
+  ctx.fillStyle = a.cloth; ctx.beginPath(); ctx.roundRect(x - 0.17 * h, top, 0.34 * h, (a.sitting ? 0.62 : 0.68) * h, 0.1 * h); ctx.fill();
+  if (a.kind === 'tech'){ ctx.fillStyle = '#F07E1B'; ctx.fillRect(x - 0.17 * h, top + 0.32 * h, 0.34 * h, 0.06 * h); }
+  if (a.kind === 'marshal'){ ctx.fillStyle = '#F4F4F2'; ctx.fillRect(x - 0.17 * h, top + 0.2 * h, 0.34 * h, 0.05 * h); ctx.fillRect(x - 0.17 * h, top + 0.42 * h, 0.34 * h, 0.05 * h); }
+  if (a.kind === 'guard'){ ctx.fillStyle = '#E8EC3A'; ctx.fillRect(x - 0.17 * h, top + 0.22 * h, 0.34 * h, 0.07 * h); ctx.fillStyle = '#D9DEE3'; ctx.fillRect(x - 0.05 * h, top + 0.06 * h, 0.1 * h, 0.08 * h); }
+  ctx.strokeStyle = shade(a.cloth, -0.25); ctx.lineWidth = 0.08 * h; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(x - 0.18 * h, top + 0.1 * h); ctx.lineTo(x - 0.21 * h + sw * 0.5, top + 0.55 * h);
+  ctx.moveTo(x + 0.18 * h, top + 0.1 * h); ctx.lineTo(x + 0.21 * h - sw * 0.5, top + 0.55 * h); ctx.stroke();
+  const hy = top - 0.15 * h;
+  ctx.fillStyle = a.skin; ctx.beginPath(); ctx.arc(x, hy, 0.14 * h, 0, 7); ctx.fill();
+  ctx.fillStyle = a.kind === 'tech' ? '#F4F4F2' : a.hair; ctx.beginPath(); ctx.arc(x, hy - 0.02 * h, a.kind === 'tech' ? 0.16 * h : 0.145 * h, Math.PI, 0); ctx.fill();
+  if (a.kind === 'marshal'){ ctx.fillStyle = '#F4F4F2'; ctx.beginPath(); ctx.arc(x, hy - 0.04 * h, 0.16 * h, Math.PI, 0); ctx.fill(); }
+  if (a.kind === 'guard'){ ctx.fillStyle = '#16203A'; ctx.beginPath(); ctx.arc(x, hy - 0.05 * h, 0.155 * h, Math.PI, 0); ctx.fill(); ctx.fillRect(x - 0.02 * h + a.face * 0.04 * h, hy - 0.07 * h, 0.2 * h * a.face, 0.04 * h); }
+  ctx.restore();
+  a.sx = x; a.sy = y; a.top = hy - 0.16 * h;
+}
+
+// ---------------------------------------------------------------- static scene pieces
+function drawOutside(){
+  // sky + hills
+  const g = ctx.createLinearGradient(0, 0, 0, 420); g.addColorStop(0, '#BFD9EC'); g.addColorStop(1, '#E9F2F8'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#A7BBA6'; ctx.beginPath(); ctx.moveTo(300, 0);
+  for (let i = 0; i <= 24; i++){ const t = i / 24, X = 300 + t * 640, Y = -40 + t * 330 - 48 - Math.sin(t * 9) * 12 - Math.sin(t * 23) * 5; ctx.lineTo(X, Y); }
+  ctx.lineTo(940, 400); ctx.lineTo(300, 400); ctx.fill();
+  // grass + apron
+  poly([[-14, -10.4], [24, -10.4], [24, -9], [-14, -9]], '#8DB06A');
+  poly([[-14, -9], [24, -9], [24, 0], [-14, 0]], '#A3A9AE');
+  for (let x = -12; x <= 22; x += 3) line([x, -9, 0], [x, 0, 0], 'rgba(80,88,96,.18)');
+  for (let y = -9; y <= 0; y += 3) line([-14, y, 0], [24, y, 0], 'rgba(80,88,96,.18)');
+  line([-10, -5.6, 0], [14, -5.6, 0], '#E7B416', 3); line([-4.6, -7.4, 0], [-4.6, -3.8, 0], '#E7B416', 3);
+  poly([[-14, -0.9], [24, -0.9], [24, -0.75], [-14, -0.75]], 'rgba(255,255,255,.65)');
+  // assembly point sign
+  line([1.2, -1.0, 0], [1.2, -1.0, 2.1], '#56606A', 3);
+  onPlaneY(0.75, -1.0, 2.55, () => { ctx.fillStyle = '#0B8A4B'; ctx.fillRect(0, 0, 36, 22); ctx.fillStyle = '#fff'; ctx.font = F(700, 7); ctx.textAlign = 'center';
+    ctx.fillText('PUNTO DE', 18, 8); ctx.fillText('ENCUENTRO', 18, 15); ctx.fillText('▲ ● ▲', 18, 21); });
+  // cones
+  [[-2.2, -2.3], [9.4, -2.6]].forEach(([x, y]) => { const [sx, sy] = P(x, y, 0); ctx.fillStyle = '#F06A1A'; ctx.beginPath(); ctx.moveTo(sx - 6, sy); ctx.lineTo(sx + 6, sy); ctx.lineTo(sx, sy - 18); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillRect(sx - 3.4, sy - 10, 6.8, 3); });
+  drawPlane();
+}
+function drawCordon(){
+  if (plant.cordon <= 0.01) return;
+  ctx.save(); ctx.globalAlpha = plant.cordon;
+  const x0 = 1.3, x1 = 8.1, y0 = -2.35, y1 = -0.95, zt = 0.5;
+  poly([[x0, y0, 0], [x1, y0, 0], [x1, y1, 0], [x0, y1, 0]], 'rgba(11,138,75,.10)');
+  const posts = []; for (let x = x0; x <= x1 + 1e-6; x += (x1 - x0) / 4) posts.push([x, y0]);
+  posts.push([x0, (y0 + y1) / 2], [x0, y1], [x0 + 1.7, y1], [x0 + 3.4, y1], [x1, y1 - 0.45]);
+  const tape = (a, b) => { const p = P(a[0], a[1], zt), q = P(b[0], b[1], zt); ctx.setLineDash([6, 5]); ctx.strokeStyle = '#E7B416'; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
+    ctx.lineDashOffset = 5.5; ctx.strokeStyle = '#2A2F36'; ctx.stroke(); ctx.setLineDash([]); ctx.lineDashOffset = 0; };
+  tape([x0, y1], [x0, y0]); tape([x0, y0], [x1, y0]); tape([x1, y0], [x1, y1 - 0.45]); tape([x0, y1], [x0 + 3.4, y1]);
+  posts.forEach(([x, y]) => line([x, y, 0], [x, y, zt + 0.05], '#56606A', 2.5));
+  ctx.restore();
+}
+function capsule(a, b, r, col){ const p = P(...a), q = P(...b); ctx.lineCap = 'round'; ctx.strokeStyle = col; ctx.lineWidth = 2 * 1.22 * r * U; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); }
+function drawPlane(){
+  const y = -5.6, z = 1.55, r = 0.72;
+  // far wing + engine
+  poly([[1.6, y, 2.32], [4.2, y, 2.32], [4.0, -11.5, 2.32], [3.0, -11.5, 2.32]], '#C9D0D6', '#AEB7BF');
+  capsule([1.7, -8.2, 2.02], [4.3, -8.2, 2.02], 0.26, '#B9C2CA');
+  // gear
+  [[-2.6, y], [3.0, y - 0.6], [3.0, y + 0.6]].forEach(([x, yy]) => { const [sx, sy] = P(x, yy, 0.22); ctx.fillStyle = '#23282E'; ctx.beginPath(); ctx.ellipse(sx, sy, 7, 9, 0, 0, 7); ctx.fill(); });
+  box(2.0, y - 0.9, 0.35, 2.4, 1.8, 0.6, '#D8DEE3');
+  // fuselage
+  capsule([-3.4, y, z], [7.4, y, z], r, '#C7CED5');
+  capsule([-3.4, y + 0.05, z + 0.06], [7.4, y + 0.05, z + 0.06], r * 0.94, '#F4F6F8');
+  // tail cone
+  const tc = [[7.2, y, z - r * 1.15], [7.2, y, z + r * 1.1], [10.6, y, z + 0.85], [10.9, y, z + 0.55], [10.6, y, z + 0.35]];
+  poly(tc, '#EEF1F4', '#C7CED5');
+  // livery stripe + windows
+  line([-3.0, y + r * 0.72, z - 0.3], [9.2, y + r * 0.72, z + 0.05], '#1E8C8C', 5);
+  for (let x = -1.6; x <= 6.6; x += 0.55){ const [sx, sy] = P(x, y + r * 0.8, z + 0.28); ctx.fillStyle = '#3A4652'; ctx.beginPath(); ctx.ellipse(sx, sy, 2.6, 3.4, 0, 0, 7); ctx.fill(); }
+  const ck = P(-3.55, y + 0.55, z + 0.38); ctx.fillStyle = '#26303A'; ctx.beginPath(); ctx.moveTo(ck[0], ck[1]); ctx.lineTo(ck[0] + 20, ck[1] + 7); ctx.lineTo(ck[0] + 18, ck[1] + 13); ctx.lineTo(ck[0] - 3, ck[1] + 6); ctx.fill();
+  // door outline
+  poly([[-1.95, y + r * 0.85, z - 0.55], [-1.45, y + r * 0.85, z - 0.55], [-1.45, y + r * 0.85, z + 0.5], [-1.95, y + r * 0.85, z + 0.5]], null, '#A6B0B9', 1.2);
+  // fin + tailplane
+  poly([[8.3, y, z + 0.6], [10.1, y, z + 0.7], [10.9, y, 4.2], [10.1, y, 4.2]], '#1E8C8C');
+  poly([[9.85, -7.2, 4.2], [10.75, -7.2, 4.2], [10.95, -4.0, 4.2], [10.1, -4.0, 4.2]], '#E6EAEE', '#B7C0C8');
+  // near wing (high wing) + engine + prop
+  capsule([1.5, -3.3, 2.0], [4.5, -3.3, 2.0], 0.27, '#D3DAE0');
+  poly([[1.6, y, 2.34], [4.2, y, 2.34], [4.05, -0.95, 2.34], [3.1, -0.95, 2.34]], '#E3E8EC', '#AEB7BF');
+  const pr = P(1.28, -3.3, 2.0); ctx.strokeStyle = 'rgba(60,70,80,.35)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(pr[0], pr[1], 15, 30, -0.5, 0, 7); ctx.stroke();
+  ctx.fillStyle = '#5B6670'; ctx.beginPath(); ctx.arc(pr[0], pr[1], 3.5, 0, 7); ctx.fill();
+}
+function drawLeftWall(){
+  poly([[0, 0, 0], [0, 9.4, 0], [0, 9.4, WH], [0, 0, WH]], '#D7DCE1');
+  poly([[0, 0, 0], [0, 9.4, 0], [0, 9.4, 0.18], [0, 0, 0.18]], '#9AA3AC');
+  poly([[-0.3, -0.3, WH], [0, 0, WH], [0, 9.4, WH], [-0.3, 9.4, WH]], '#B5BDC5');
+  // gate sign B12
+  onPlaneX(0, 2.9, 3.3, () => { ctx.font = F(600, 7.5); const sw = 40 + Math.ceil(Math.max(ctx.measureText('PUERTA · GATE').width, ctx.measureText('SAN SEBASTIÁN').width)) + 7;
+    ctx.fillStyle = '#262B31'; ctx.fillRect(0, 0, sw, 26); ctx.fillStyle = '#FFC72C'; ctx.font = F(700, 17); ctx.fillText('B12', 6, 19);
+    ctx.fillStyle = '#fff'; ctx.font = F(600, 7.5); ctx.fillText('PUERTA · GATE', 40, 11); ctx.fillText('SAN SEBASTIÁN', 40, 20); });
+  // FIDS
+  onPlaneX(0, 7.2, 3.05, () => {
+    ctx.fillStyle = '#20262C'; ctx.fillRect(-3, -3, 156, 62); ctx.fillStyle = '#0D1B2A'; ctx.fillRect(0, 0, 150, 56);
+    ctx.fillStyle = '#FFC72C'; ctx.font = F(700, 7.5); ctx.fillText('SALIDAS  DEPARTURES', 5, 9);
+    const rows = [['10:40', 'MADRID', 'EMBARQUE', '#7CE38B'], ['11:05', 'BARCELONA', 'A TIEMPO', '#fff'], ['11:30', 'SEVILLA', 'A TIEMPO', '#fff'], ['12:15', 'PALMA', 'RETRASO', '#FFB347']];
+    ctx.font = F(600, 7); rows.forEach((r, i) => { const yy = 20 + i * 10; ctx.fillStyle = '#DDE6EE'; ctx.fillText(r[0], 5, yy); ctx.fillText(r[1], 33, yy); ctx.fillText('B12', 84, yy); ctx.fillStyle = r[3]; ctx.fillText(r[2], 104, yy); });
+  });
+}
+function drawBackWall(){
+  const st = plc.state, door = plant.door;
+  // glass curtain wall x 0..8.8
+  poly([[0, 0, 0], [8.8, 0, 0], [8.8, 0, WH], [0, 0, WH]], 'rgba(165,205,228,.26)');
+  const gl = ctx.createLinearGradient(...P(0, 0, WH), ...P(4, 0, 0)); gl.addColorStop(0, 'rgba(255,255,255,.22)'); gl.addColorStop(.5, 'rgba(255,255,255,0)'); gl.addColorStop(1, 'rgba(255,255,255,.12)');
+  poly([[0, 0, 0], [8.8, 0, 0], [8.8, 0, WH], [0, 0, WH]], gl);
+  for (let x = 0; x <= 8.8001; x += 1.1) line([x, 0, 0], [x, 0, WH], '#7D8A97', x === 0 ? 3 : 2);
+  line([0, 0, 0.12], [8.8, 0, 0.12], '#7D8A97', 3); line([0, 0, WH - 0.05], [8.8, 0, WH - 0.05], '#7D8A97', 3);
+  // solid sections + door header
+  const wall = '#CDD3D9';
+  poly([[8.8, 0, 0], [9.6, 0, 0], [9.6, 0, WH], [8.8, 0, WH]], wall);
+  poly([[9.6, 0, 2.75], [12.6, 0, 2.75], [12.6, 0, WH], [9.6, 0, WH]], wall);
+  poly([[12.6, 0, 0], [15.4, 0, 0], [15.4, 0, WH], [12.6, 0, WH]], wall);
+  poly([[12.6, 0, 0], [15.4, 0, 0], [15.4, 0, 0.18], [12.6, 0, 0.18]], '#9AA3AC'); poly([[8.8, 0, 0], [9.6, 0, 0], [9.6, 0, 0.18], [8.8, 0, 0.18]], '#9AA3AC');
+  poly([[-0.3, -0.3, WH], [15.4, -0.3, WH], [15.4, 0, WH], [0, 0, WH]], '#B5BDC5');
+  // door frame (track + jambs)
+  line([9.55, 0.06, 2.78], [12.65, 0.06, 2.78], '#5C6772', 5); line([9.6, 0.05, 0], [9.6, 0.05, 2.75], '#5C6772', 3); line([12.6, 0.05, 0], [12.6, 0.05, 2.75], '#5C6772', 3);
+  // exit sign
+  onPlaneY(10.35, 0.02, 3.42, () => { ctx.fillStyle = '#0B8A4B'; ctx.fillRect(0, 0, 70, 22); ctx.fillStyle = '#fff';
+    ctx.fillRect(48, 3, 14, 16); ctx.fillStyle = '#0B8A4B'; ctx.fillRect(50, 5, 10, 12); ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(39, 6, 2.4, 0, 7); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(38, 9); ctx.lineTo(35, 14); ctx.lineTo(31, 18); ctx.moveTo(35, 14); ctx.lineTo(39, 18); ctx.moveTo(38, 10); ctx.lineTo(42, 12); ctx.moveTo(37, 10); ctx.lineTo(33, 11); ctx.stroke();
+    ctx.font = F(700, 8.5); ctx.fillText('SALIDA', 3, 10); ctx.font = F(600, 7); ctx.fillText('EXIT', 3, 18); });
+  // beacon (activate_alarm_global)
+  const on = plc.alarm_global, fl = on && (Math.floor(simT / 250) % 2 === 0);
+  const bc = P(9.2, 0.15, 3.05);
+  ctx.fillStyle = '#2B3138'; ctx.fillRect(bc[0] - 7, bc[1], 14, 5);
+  ctx.fillStyle = fl ? '#FF3B2F' : on ? '#C0241B' : '#8E2A25'; ctx.beginPath(); ctx.arc(bc[0], bc[1], 7, Math.PI, 0); ctx.fill();
+  if (fl){ const rg = ctx.createRadialGradient(bc[0], bc[1], 2, bc[0], bc[1], 60); rg.addColorStop(0, 'rgba(255,60,40,.55)'); rg.addColorStop(1, 'rgba(255,60,40,0)'); ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(bc[0], bc[1], 60, 0, 7); ctx.fill(); }
+  // control panel PB/S1
+  box(12.95, 0, 1.05, 1.0, 0.16, 1.0, '#C9CDD1', {left: '#DADDE0'});
+  onPlaneY(12.95, 0.16, 2.05, () => {
+    ctx.fillStyle = '#F2C230'; ctx.fillRect(4, 3, 32, 4);
+    const k = plc.inputs.iSwitch_physical;
+    ctx.fillStyle = '#2B3138'; ctx.beginPath(); ctx.arc(10, 18, 5.2, 0, 7); ctx.fill(); ctx.strokeStyle = '#E8ECEF'; ctx.lineWidth = 1.6; ctx.beginPath(); const ang = k ? 0.8 : -0.8; ctx.moveTo(10 - Math.sin(ang) * 4, 18 + Math.cos(ang) * 4); ctx.lineTo(10 + Math.sin(ang) * 4, 18 - Math.cos(ang) * 4); ctx.stroke();
+    ctx.fillStyle = plant.alarmHeldUI ? '#8E1510' : '#E2251B'; ctx.beginPath(); ctx.arc(29, 18, 6, 0, 7); ctx.fill();
+    ctx.fillStyle = plant.testHeldUI ? '#0B5A30' : '#1C9A55'; ctx.beginPath(); ctx.arc(20, 31, 4.4, 0, 7); ctx.fill();
+    ctx.fillStyle = '#20262C'; ctx.font = F(600, 4.5); ctx.fillText('S1', 7, 27); ctx.fillText('PB2', 25, 28); ctx.fillText('PB1', 26, 34);
+  });
+  // stack light
+  const o = plc.outputs, sl = [[o.oLightRed, '#E2251B', '#5E1A17', 3.15], [o.oLightOrange, '#F4A11F', '#5F4317', 2.86], [o.oLightGreen, '#21B263', '#174A31', 2.57]];
+  const sb = P(14.35, 0.22, 2.3); ctx.fillStyle = '#4A535C'; ctx.fillRect(sb[0] - 2, sb[1] - 4, 4, 12); line([14.35, 0, 2.3], [14.35, 0.22, 2.3], '#4A535C', 3);
+  sl.forEach(([on, c, off, zz]) => { const [sx, sy] = P(14.35, 0.22, zz); ctx.fillStyle = on ? c : off; ctx.fillRect(sx - 6, sy - 10.5, 12, 10.5); ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(sx - 4, sy - 9.5, 2.5, 8.5);
+    if (on){ const rg = ctx.createRadialGradient(sx, sy - 5, 2, sx, sy - 5, 34); rg.addColorStop(0, c + 'AA'); rg.addColorStop(1, c + '00'); ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(sx, sy - 5, 34, 0, 7); ctx.fill(); } });
+  { const [sx, sy] = P(14.35, 0.22, 3.15); ctx.fillStyle = '#3B434B'; ctx.beginPath(); ctx.ellipse(sx, sy - 10.5, 6, 2.5, 0, 0, 7); ctx.fill(); }
+  // camera + Raspberry Pi
+  box(13.25, 0, 3.0, 0.5, 0.12, 0.34, '#E8EAEC', {left: '#F0F1F2'});
+  onPlaneY(13.25, 0.12, 3.34, () => { ctx.fillStyle = '#1B9E4B'; ctx.font = F(700, 4.5); ctx.fillText('RPi', 3, 7);
+    const led = plant.rpi ? (Math.floor(simT / 200) % 2 ? '#2BD06B' : '#0E5D2E') : '#E2251B'; ctx.fillStyle = led; ctx.beginPath(); ctx.arc(15, 9, 2, 0, 7); ctx.fill(); });
+  line([12.7, 0, 3.32], [12.7, 0.35, 3.32], '#5C6772', 2.5);
+  box(12.55, 0.3, 3.2, 0.3, 0.42, 0.2, '#EEF0F2', {left: '#DFE3E6'});
+  { const [sx, sy] = P(12.7, 0.74, 3.3); ctx.fillStyle = '#1C2126'; ctx.beginPath(); ctx.arc(sx, sy, 3.5, 0, 7); ctx.fill(); }
+  // door leaves (sliding, on the inside face)
+  const off = 1.45 * door, zt = 2.72;
+  [[9.62 - off, 11.1 - off], [11.1 + off, 12.58 + off]].forEach(([a, b]) => {
+    poly([[a, 0.11, 0.02], [b, 0.11, 0.02], [b, 0.11, zt], [a, 0.11, zt]], 'rgba(190,220,236,.42)', '#6E7A86', 2.6);
+    line([a + 0.08, 0.11, 1.0], [b - 0.08, 0.11, 1.0], 'rgba(220,40,30,.85)', 3);
+    line([a + 0.08, 0.11, 1.12], [b - 0.08, 0.11, 1.12], 'rgba(255,255,255,.85)', 3);
+  });
+}
+function drawFloor(){
+  poly([[0, 0, 0], [15.4, 0, 0], [15.4, 9.4, 0], [0, 9.4, 0]], '#E4E2DC');
+  for (let x = 1; x < 15.4; x += 1) line([x, 0, 0], [x, 9.4, 0], 'rgba(120,115,105,.13)');
+  for (let y = 1; y < 9.4; y += 1) line([0, y, 0], [15.4, y, 0], 'rgba(120,115,105,.13)');
+  poly([[1.9, 3.85, 0], [9.4, 3.85, 0], [9.4, 7.15, 0], [1.9, 7.15, 0]], '#7C8A99');
+  poly([[2.0, 3.95, 0], [9.3, 3.95, 0], [9.3, 7.05, 0], [2.0, 7.05, 0]], '#8C99A7');
+  // keep-clear hatch in front of the door
+  onFloor(9.6, 0.15, () => { ctx.fillStyle = 'rgba(242,194,48,.85)'; ctx.fillRect(0, 0, 120, 30); ctx.save(); ctx.beginPath(); ctx.rect(0, 0, 120, 30); ctx.clip(); ctx.fillStyle = 'rgba(30,30,30,.8)';
+    for (let i = -30; i < 130; i += 12){ ctx.beginPath(); ctx.moveTo(i, 30); ctx.lineTo(i + 6, 30); ctx.lineTo(i + 36, 0); ctx.lineTo(i + 30, 0); ctx.fill(); } ctx.restore();
+    ctx.fillStyle = 'rgba(232,229,222,.95)'; ctx.fillRect(14, 8, 92, 14); ctx.fillStyle = '#2A2F35'; ctx.font = F(700, 9); ctx.textAlign = 'center'; ctx.fillText('MANTENER LIBRE · KEEP CLEAR', 60, 18.5); });
+  // slab edges
+  poly([[0, 9.4, 0], [15.4, 9.4, 0], [15.4, 9.4, -0.35], [0, 9.4, -0.35]], '#A7ABB0');
+  poly([[15.4, 0, 0], [15.4, 9.4, 0], [15.4, 9.4, -0.35], [15.4, 0, -0.35]], '#8C9196');
+}
+function drawSeat(s){
+  const {x, y} = s;
+  line([x, y, 0], [x, y, 0.42], '#4A535C', 2);
+  box(x - 0.26, y - 0.24, 0.42, 0.52, 0.48, 0.08, '#43566B');
+  box(x - 0.26, y + 0.2, 0.48, 0.52, 0.08, 0.55, '#3A4C60');
+}
+function drawPodium(){
+  box(0.9, 1.5, 0, 1.2, 1.1, 1.05, '#3A434D', {top: '#C9CFD6'});
+  onPlaneY(0.9, 2.6, 0.95, () => { ctx.fillStyle = '#FFC72C'; ctx.fillRect(10, 4, 28, 12); ctx.fillStyle = '#1B1E22'; ctx.font = F(700, 10); ctx.fillText('B12', 14, 14); });
+}
+function drawPlanter(x, y){ box(x - 0.3, y - 0.3, 0, 0.6, 0.6, 0.55, '#7A6E62'); const [sx, sy] = P(x, y, 0.9);
+  ctx.fillStyle = '#4F7F4A'; [[0, -10, 15], [-9, 0, 11], [9, -2, 12], [0, 4, 11]].forEach(([dx, dy, r]) => { ctx.beginPath(); ctx.arc(sx + dx, sy + dy, r, 0, 7); ctx.fill(); }); }
+
+// ---------------------------------------------------------------- frame
+const LABEL = {0:'System off · door open',1:'Shutting down · door opening',2:'Arming · door closing',3:'Locked · Pi camera watching',
+ 4:'Emergency · door opening',5:'Emergency · door open',6:'Reset · door closing',7:'Wanted match · door opening',8:'Wanted match · door open',
+ 9:'Cleared · door closing',10:'Test mode · door opening',11:'Test mode · door open',12:'Test done · door closing',13:'Pi link lost · failing open',14:'Pi link lost · door held open'};
+function draw(){
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drawOutside(); drawCordon();
+  agents.filter(a => a.y < 0).sort((a, b) => (a.x + a.y) - (b.x + b.y)).forEach(drawPerson);
+  drawLeftWall(); drawBackWall(); drawFloor();
+  const items = [];
+  SEATS.forEach(s => items.push({k: s.x + s.y + 0.05, f: () => drawSeat(s)}));
+  items.push({k: 1.5 + 2.6, f: drawPodium});
+  items.push({k: 14.4 + 0.9, f: () => drawPlanter(14.4, 0.9)}); items.push({k: 0.7 + 8.6, f: () => drawPlanter(0.7, 8.6)});
+  agents.filter(a => a.y >= 0).forEach(a => items.push({k: a.x + a.y, f: () => drawPerson(a)}));
+  items.sort((a, b) => a.k - b.k).forEach(i => i.f());
+  // camera cone + flagged bracket
+  const faceSt = plc.state >= 7 && plc.state <= 9, fa = agents.find(a => a.flagged);
+  const poi = (plant.poi || (plant.sec && plant.sec.mode === 'poi')) && !faceSt;
+  const fcol = poi ? '#E8920F' : '#E3251B', ftxt = poi ? 'PERSON OF INTEREST' : 'WANTED MATCH';
+  if ((faceSt || poi || plant.camSweep > 0) && fa && fa.alpha > 0.2){
+    const c = P(12.7, 0.74, 3.3); ctx.fillStyle = poi ? 'rgba(232,146,15,.14)' : 'rgba(227,37,27,.12)'; ctx.beginPath(); ctx.moveTo(c[0], c[1]); ctx.lineTo(fa.sx - 22, fa.top); ctx.lineTo(fa.sx + 22, fa.sy); ctx.closePath(); ctx.fill();
+    const x0 = fa.sx - 17, y0 = fa.top - 4, w = 34, h = fa.sy - fa.top + 6; ctx.strokeStyle = fcol; ctx.lineWidth = 2.2;
+    [[x0, y0, 1, 1], [x0 + w, y0, -1, 1], [x0, y0 + h, 1, -1], [x0 + w, y0 + h, -1, -1]].forEach(([x, y, sx, sy]) => { ctx.beginPath(); ctx.moveTo(x + sx * 8, y); ctx.lineTo(x, y); ctx.lineTo(x, y + sy * 8); ctx.stroke(); });
+    ctx.font = F(700, 10); const tw = ctx.measureText(ftxt).width + 6;
+    ctx.fillStyle = fcol; ctx.fillRect(x0, y0 - 15, tw, 13); ctx.fillStyle = '#fff'; ctx.fillText(ftxt, x0 + 3, y0 - 5);
+  }
+  // alarm wash
+  if (plc.alarm_global){ const pulse = (REDUCED || CAPTURE) ? 0.5 : 0.5 + 0.5 * Math.sin(simT / 160); ctx.fillStyle = `rgba(230,40,30,${0.05 + 0.07 * pulse})`; ctx.fillRect(0, 0, W, H); }
+  drawHUD();
+}
+function drawHUD(){
+  const o = plc.outputs, name = NAME[plc.state];
+  ctx.save(); ctx.fillStyle = 'rgba(22,27,33,.88)'; ctx.beginPath(); ctx.roundRect(14, 14, 300, 66, 6); ctx.fill();
+  [[o.oLightRed, '#F0483F'], [o.oLightOrange, '#F4A11F'], [o.oLightGreen, '#22C06C']].forEach(([on, c], i) => { ctx.fillStyle = on ? c : '#3A424B'; ctx.beginPath(); ctx.arc(34, 30 + i * 17, 6.5, 0, 7); ctx.fill(); });
+  ctx.fillStyle = '#FFC72C'; ctx.font = F(500, 13.5, 'mono'); ctx.fillText(name, 52, 36);
+  const poiNow = plant.sec && plant.sec.mode === 'poi' && plant.sec.phase !== 'gone' && plc.state === S.stWaitingRaspberry;
+  ctx.fillStyle = '#fff'; ctx.font = F(600, 17); ctx.fillText(poiNow ? 'Locked · security responding' : LABEL[plc.state], 52, 60);
+  if (plc.alarm_global){ ctx.fillStyle = '#E3251B'; ctx.beginPath(); ctx.roundRect(324, 14, 74, 26, 4); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = F(700, 14); ctx.fillText('ALARM', 338, 32); }
+  const tr = hot.tr && simT < hot.until ? hot.tr : null;
+  if (tr){ ctx.fillStyle = 'rgba(255,199,44,.95)'; ctx.beginPath(); ctx.roundRect(14, 86, 64, 24, 4); ctx.fill(); ctx.fillStyle = '#1B1E22'; ctx.font = F(600, 13, 'mono'); ctx.fillText(tr + ' ✓', 22, 103); }
+  // door gauge
+  ctx.fillStyle = 'rgba(22,27,33,.88)'; ctx.beginPath(); ctx.roundRect(W - 172, 14, 158, 46, 6); ctx.fill();
+  ctx.fillStyle = '#C9D2DB'; ctx.font = F(600, 11.5); ctx.fillText('DOOR', W - 160, 32); ctx.fillText(Math.round(plant.door * 100) + '% OPEN', W - 96, 32);
+  ctx.fillStyle = '#3A424B'; ctx.fillRect(W - 160, 41, 134, 8); ctx.fillStyle = plc.motorEnabled ? '#F4A11F' : '#9FB0C0'; ctx.fillRect(W - 160, 41, 134 * plant.door, 8);
+  if (CAPTURE && sayText){ ctx.font = F(600, 17); const tw = Math.min(W - 40, ctx.measureText(sayText).width + 28);
+    ctx.fillStyle = 'rgba(22,27,33,.9)'; ctx.beginPath(); ctx.roundRect(14, H - 54, tw, 40, 6); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillText(sayText, 28, H - 28, W - 68); }
+  ctx.restore();
+}
+const REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---------------------------------------------------------------- panels
+const NODES = {
+  0: [120, 48], 2: [375, 48], 3: [640, 48], 1: [375, 118],
+  4: [130, 236], 5: [130, 300], 6: [130, 364],
+  7: [385, 236], 8: [385, 300], 9: [385, 364],
+  10: [640, 236], 11: [640, 300], 12: [640, 364],
+  13: [895, 236], 14: [895, 300],
+};
+const ALARMS = new Set([4, 5, 6, 7, 8, 9, 13, 14]);
+const EDGES = [
+  ['T1', 'M 231 48 H 262', [238, 40]], ['T3', 'M 486 48 H 527', [497, 40]], ['T4', 'M 640 66 V 118 H 488', [650, 98]], ['T2', 'M 264 118 H 120 V 68', [185, 110]],
+  ['T7', 'M 640 118 V 178 H 130 V 218', [140, 205]], ['T8', 'M 640 178 H 385 V 218', [395, 205]], ['T9', 'M 640 178 V 218', [650, 205]], ['T5', 'M 640 178 H 895 V 218', [905, 205]],
+  ['T15', 'M 130 254 V 282', [140, 272]], ['T16', 'M 130 318 V 346', [140, 336]],
+  ['T18', 'M 385 254 V 282', [395, 272]], ['T19', 'M 385 318 V 346', [395, 336]],
+  ['T21', 'M 640 254 V 282', [650, 272]], ['T22', 'M 640 318 V 346', [650, 336]],
+  ['T24', 'M 895 254 V 282', [905, 272]],
+];
+const NOTES = [
+  ['T17', 130, 398, '↑ T17 to locked'], ['T26', 130, 414, 'T26·27·28 re-trigger'], ['T37', 130, 430, 'T37 abort while opening'],
+  ['T20', 385, 398, '↑ T20 to locked'], ['T29', 385, 414, 'T29·30·31 re-trigger'], ['T35', 385, 430, 'T35 abort while opening'],
+  ['T23', 640, 398, '↑ T23 to locked'], ['T32', 640, 414, 'T32·33·34 re-trigger'], ['T36', 640, 430, 'T36 abort while opening'],
+  ['T25', 895, 334, '↑ T25 to stDisconnected'],
+];
+const NOTE_GROUP = {T27: 'T26', T28: 'T26', T30: 'T29', T31: 'T29', T33: 'T32', T34: 'T32'};
+function buildChart(){
+  const ns = 'http://www.w3.org/2000/svg';
+  let s = `<svg viewBox="0 0 1020 444" role="img" aria-label="State chart of the door controller"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>`;
+  [['Emergency button', 130], ['Face flagged', 385], ['Test mode', 700], ['Pi link lost', 895]].forEach(([t, x]) => s += `<text class="hd" x="${x}" y="168" text-anchor="middle">${t}</text>`);
+  s += `<text class="hd" x="120" y="20" text-anchor="middle">Start / stop</text><text class="hd" x="640" y="20" text-anchor="middle">Production</text>`;
+  EDGES.forEach(([t, d, [lx, ly]]) => s += `<path id="e-${t}" class="edge" d="${d}" marker-end="url(#ah)" style="color:var(--muted)"/><text id="l-${t}" class="tl" x="${lx}" y="${ly}">${t}</text>`);
+  Object.entries(NODES).forEach(([k, [x, y]]) => { const w = 222; s += `<g class="node${ALARMS.has(+k) ? ' alarm' : ''}" id="n-${k}"><rect x="${x - w / 2}" y="${y - 18}" width="${w}" height="36" rx="4"/><text x="${x}" y="${y + 4.5}" text-anchor="middle">${NAME[k]}</text></g>`; });
+  NOTES.forEach(([t, x, y, txt]) => s += `<text id="m-${t}" class="note" x="${x}" y="${y}" text-anchor="middle">${txt}</text>`);
+  s += '</svg>';
+  document.getElementById('chart').innerHTML = s;
+}
+let lastState = -1, lastHot = '';
+function updateChart(){
+  if (plc.state !== lastState){ document.querySelectorAll('.node.on').forEach(n => n.classList.remove('on')); document.getElementById('n-' + plc.state)?.classList.add('on'); lastState = plc.state; document.getElementById('stname').textContent = NAME[plc.state]; }
+  const h = hot.tr && simT < hot.until ? hot.tr : '';
+  if (h !== lastHot){ document.querySelectorAll('.chart .hot').forEach(n => n.classList.remove('hot'));
+    if (h){ const g = NOTE_GROUP[h] || h; ['e-', 'l-', 'm-'].forEach(p => document.getElementById(p + g)?.classList.add('hot')); }
+    lastHot = h; }
+}
+const IO = [
+  ['h', 'Inputs'], ['iSwitch', () => plc.inputs.iSwitch], ['iAlarmButton_preFtrig  (NC)', () => plc.inputs.iAlarmButton_preFtrig, () => (plc.timersCounters.alarmButtonTImer.ET / 1000).toFixed(1) + ' s'],
+  ['iTestButton_preRtrig', () => plc.inputs.iTestButton_preRtrig, () => (plc.timersCounters.testButtonTimer.ET / 1000).toFixed(1) + ' s'],
+  ['iAlarmButton_HMI / iTestButton_HMI', () => plc.inputs.iAlarmButton_HMI || plc.inputs.iTestButton_HMI, () => (plc.inputs.iAlarmButton_HMI ? 'A' : '·') + (plc.inputs.iTestButton_HMI ? 'T' : '·')],
+  ['iFacialDetec', () => plc.inputs.iFacialDetec],
+  ['ilimitSwitchOpen_pre  (NC)', () => plc.inputs.ilimitSwitchOpen_preRtrig], ['ilimitSwitchClose_pre', () => plc.inputs.ilimitSwitchClose_preRtrig],
+  ['iHeartbeat', () => plant.rpi, () => plc.RPiWatchdog.iHeartbeat], ['iRPiFail', () => plc.RPiWatchdog.iRPiFail, null, 'r'],
+  ['h', 'Outputs'], ['oOpenDoor', () => plc.outputs.oOpenDoor, null, 'o'], ['oCloseDoor', () => plc.outputs.oCloseDoor, null, 'o'],
+  ['activate_alarm_global', () => plc.alarm_global, null, 'r'], ['oLightRed', () => plc.outputs.oLightRed, null, 'r'], ['oLightOrange', () => plc.outputs.oLightOrange, null, 'o'], ['oLightGreen', () => plc.outputs.oLightGreen],
+  ['oMotorDir', () => plc.motorEnabled, () => plc.motorEnabled ? (plc.outputs.oMotorDir ? 'open' : 'close') : 'off'],
+];
+function buildIO(){ document.getElementById('io').innerHTML = IO.map((r, i) => r[0] === 'h' ? `<div class="h">${r[1]}</div>` : `<div class="r"><i class="lamp ${r[3] || ''}" id="io${i}"></i><span>${r[0]}</span><em id="iv${i}"></em></div>`).join(''); }
+function updateIO(){
+  IO.forEach((r, i) => { if (r[0] === 'h') return; const el = document.getElementById('io' + i); el.classList.toggle('on', !!r[1]()); if (r[2]) document.getElementById('iv' + i).textContent = r[2](); });
+  document.getElementById('clock').textContent = 't = ' + (simT / 1000).toFixed(1) + ' s';
+  const wd = plc.wd.fbWatchdog.ET; document.getElementById('wdbar').style.width = (wd / 30) + '%'; document.getElementById('wdtxt').textContent = `watchdog ${(wd / 1000).toFixed(1)} / 3.0 s`;
+  document.getElementById('k-alarm').style.setProperty('--p', plc.timersCounters.alarmButtonTImer.ET / 5000);
+  document.getElementById('k-test').style.setProperty('--p', plc.timersCounters.testButtonTimer.ET / 5000);
+  syncButtons();
+}
+function syncButtons(){
+  const set = (id, v) => { const b = document.getElementById(id); if (b && b.getAttribute('aria-pressed') !== String(v)) b.setAttribute('aria-pressed', String(v)); };
+  set('k-s1', plc.inputs.iSwitch_physical); set('k-alarm', plant.alarmHeldUI); set('k-test', plant.testHeldUI); set('k-halarm', plc.inputs.iAlarmButton_HMI); set('k-link', plant.rpi);
+  const l = document.getElementById('k-link'); const lt = plant.rpi ? 'Heartbeat: connected' : 'Heartbeat: unplugged'; if (l.textContent !== lt) l.textContent = lt;
+  document.getElementById('k-face').disabled = !plant.rpi; document.getElementById('k-poi').disabled = !plant.rpi || !!plant.sec;
+}
+function renderLog(){
+  document.getElementById('log').innerHTML = logItems.map(e => `<li><span>${(e.t / 1000).toFixed(2)}</span><b>${e.tr}</b><span>${NAME[e.from]} → ${NAME[e.to]}<i>${WHY[e.tr] || ''}</i></span></li>`).join('');
+}
+
+// ---------------------------------------------------------------- wiring
+function hold(id, on, off){ const b = document.getElementById(id);
+  const down = e => { e.preventDefault(); stopScenario(); on(); try { b.setPointerCapture(e.pointerId); } catch(_){} };
+  const up = () => off();
+  b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
+  b.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat){ e.preventDefault(); stopScenario(); on(); } });
+  b.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') off(); });
+  b.addEventListener('contextmenu', e => e.preventDefault());
+}
+hold('k-alarm', () => setAlarm(true), () => setAlarm(false));
+hold('k-test', () => setTest(true), () => setTest(false));
+hold('k-htest', () => tapHTest(true), () => tapHTest(false));
+document.getElementById('k-s1').addEventListener('click', () => { stopScenario(); setSwitch(!plc.inputs.iSwitch_physical); });
+document.getElementById('k-link').addEventListener('click', () => { stopScenario(); setLink(!plant.rpi); });
+document.getElementById('k-face').addEventListener('click', () => { stopScenario(); flagFace(); });
+document.getElementById('k-poi').addEventListener('click', () => { stopScenario(); flagPOI(); });
+document.getElementById('k-halarm').addEventListener('click', () => { stopScenario(); setHAlarm(!plc.inputs.iAlarmButton_HMI); });
+document.querySelectorAll('.scen button').forEach(b => b.addEventListener('click', () => runScenario(b.dataset.sc)));
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { speed = +b.dataset.sp; document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); }));
+document.getElementById('pause').addEventListener('click', e => { paused = !paused; e.currentTarget.setAttribute('aria-pressed', String(paused)); e.currentTarget.textContent = paused ? 'Resume' : 'Pause'; });
+document.getElementById('reset').addEventListener('click', () => { reset(); lastState = -1; });
+
+// ---------------------------------------------------------------- loop
+let acc = 0, last = 0;
+let agAcc = 0;
+function advance(ms){ acc += ms; let n = 0; while (acc >= PLC.SCAN_MS && n < 4000){ acc -= PLC.SCAN_MS; scanOnce(); n++; agAcc += PLC.SCAN_MS; if (agAcc >= 40){ updateAgents(agAcc / 1000); if (plant.camSweep > 0) plant.camSweep -= agAcc; agAcc = 0; } } }
+function frame(t){
+  const dt = Math.min(100, last ? t - last : 16); last = t;
+  if (!paused) advance(dt * speed);
+  draw(); updateChart(); updateIO();
+  requestAnimationFrame(frame);
+}
+fit(); window.addEventListener('resize', fit);
+reset(); buildChart(); buildIO();
+// open in a realistic working state: system armed and locked
+setSwitch(true); for (let i = 0; i < 380; i++) scanOnce(); updateAgents(0.01); logItems = []; renderLog(); hot = {};
+if (CAPTURE){ window.SIM = { advance, draw: () => { draw(); updateChart(); updateIO(); }, run: runScenario, get busy(){ return !!scen; }, get state(){ return NAME[plc.state]; }, canvas: C, setSay }; draw(); }
+else requestAnimationFrame(frame);
+})();
+</script>
+
+</html>

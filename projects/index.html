@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ic,:root:not([data-theme="light"]) .ic-img{border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,255,255,.55)}}
+:root[data-theme="dark"] .ic,:root[data-theme="dark"] .ic-img{border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,255,255,.55)}
+</style>
+<title>Ruud Perez Projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap">
+<style>
+/* Layout: an engineering project sheet on a desk. Light-blue header band, a title bar per project,
+   an image row, then What? / How? / Results columns. Charts follow Excel's default chart style. */
+:root{
+  --desk:#e6e9ec; --paper:#ffffff; --ink:#1b2230; --ink-2:#3c4555; --ink-3:#6b7382;
+  --band-a:#c9d9e4; --band-b:#eef3f6; --bar:#dcebf3; --navy:#16243a; --rule:#d5dbe0; --accent:#1f7a8c;
+  --xl-1:#4472C4; --xl-2:#ED7D31; --xl-3:#A5A5A5; --xl-grid:#D9D9D9; --xl-axis:#BFBFBF; --xl-text:#595959;
+  --font:"Montserrat","Avenir Next","Segoe UI",Arial,sans-serif;
+  --xl-font:Calibri,Carlito,"Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --desk:#0f1215; --paper:#181c21; --ink:#e9edf1; --ink-2:#bcc4cc; --ink-3:#8d96a0;
+  --band-a:#22313d; --band-b:#1b232b; --bar:#1f2e38; --navy:#d9e6f0; --rule:#2c343b; --accent:#5fb6c6;
+  --xl-grid:#3a4148; --xl-axis:#4a525a; --xl-text:#b4bcc4; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --desk:#0f1215; --paper:#181c21; --ink:#e9edf1; --ink-2:#bcc4cc; --ink-3:#8d96a0;
+  --band-a:#22313d; --band-b:#1b232b; --bar:#1f2e38; --navy:#d9e6f0; --rule:#2c343b; --accent:#5fb6c6;
+  --xl-grid:#3a4148; --xl-axis:#4a525a; --xl-text:#b4bcc4; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--desk);color:var(--ink);font:400 15px/1.55 var(--font);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px}
+a{color:var(--accent);text-underline-offset:2px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sheet{max-width:920px;margin:0 auto;background:var(--paper);box-shadow:0 1px 2px rgba(0,0,0,.06),0 12px 40px rgba(20,30,40,.12)}
+@media (max-width:640px){body{padding-block:16px}}
+
+/* header band */
+.band{background:linear-gradient(90deg,var(--band-a),var(--band-b));padding:26px 36px 22px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+.band h1{font:900 clamp(30px,5.4vw,46px)/1 var(--font);letter-spacing:.01em;margin:0 0 10px;color:var(--navy);text-transform:uppercase}
+.band .role{font:700 13.5px/1.3 var(--font);letter-spacing:.06em;text-transform:uppercase;margin:0;color:var(--navy)}
+.band .contacts{display:grid;gap:8px;padding-left:24px;border-left:3px solid var(--navy);font:500 14px/1.2 var(--font)}
+.band .contacts a,.band .contacts span{display:flex;align-items:center;gap:9px;color:var(--ink);text-decoration:none}
+.band .contacts a:hover{text-decoration:underline}
+.ic{width:22px;height:22px;border-radius:50%;background:#1f2328;display:flex;align-items:center;justify-content:center;flex:none}
+.ic-img{width:22px;height:22px;flex:none;display:block;background:#fff;border-radius:50%}
+.ic svg{display:block;width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sel{user-select:all}
+@media (max-width:640px){.band{grid-template-columns:minmax(0,1fr);padding:22px 20px}.band .contacts{padding-left:14px}}
+
+.content{padding:22px 36px 36px}
+@media (max-width:640px){.content{padding:18px 20px 28px}}
+.about{margin:4px 0 6px;color:var(--ink-2);max-width:78ch;font-size:16px}
+.about b{color:var(--navy)}
+
+/* project */
+.proj{margin-top:26px}
+.bar{background:var(--bar);padding:9px 14px;margin:0 0 16px;display:flex;align-items:center;gap:10px}
+.bar h2{font:800 17px/1.25 var(--font);letter-spacing:.02em;text-transform:uppercase;margin:0;color:var(--navy);text-wrap:balance}
+.bar .org{font-weight:600;color:var(--ink-3)}
+.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:end;margin-bottom:16px}
+.row.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.row.one{grid-template-columns:minmax(0,1fr)}
+figure{margin:0;min-width:0}
+figure img{display:block;width:100%;height:auto}
+.phone img{max-height:380px;width:auto;max-width:100%;margin:0 auto;border-radius:16px;border:1px solid var(--rule)}
+.gif{display:flex}
+.gif .box{flex:1;border:1px solid #D9D9D9;background:#fff;padding:10px 12px 10px;display:flex;flex-direction:column;justify-content:space-between}
+.gif .box img{display:block;width:100%;height:auto}
+.gt{font:400 17px/1.2 var(--xl-font);color:#595959;text-align:center;margin:0 0 4px}
+.row.top{align-items:stretch}
+.row.top>.xl{display:flex;flex-direction:column;justify-content:space-between}
+figcaption{font:500 13px/1.4 var(--font);color:var(--ink-2);margin-top:7px;text-align:center}
+.simlg{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 16px;font:500 12px/1.2 var(--font);color:#3c4555;margin-top:2px}
+.simlg span{display:inline-flex;align-items:center;gap:7px}
+.simlg i{width:9px;height:9px;border-radius:50%;display:inline-block}
+@media (max-width:640px){.row,.row.two{grid-template-columns:minmax(0,1fr)}.phone img{max-height:340px}}
+@media (max-width:640px){.row.phones{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.row.phones .phone img{border-radius:8px}}
+
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+@media (max-width:700px){.cols{grid-template-columns:minmax(0,1fr);gap:12px}}
+.cols h3{font:700 15px/1 var(--font);margin:0 0 7px;color:var(--ink)}
+.cols ul{margin:0;padding-left:16px;display:grid;gap:4px}
+.cols li{font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+.cols li::marker{color:var(--ink)}
+.cols b{color:var(--navy);font-weight:700}
+.links{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font:600 14px/1.2 var(--font)}
+.links a{display:inline-flex;align-items:center;gap:6px}
+.links a::after{content:"\2197";font-weight:500}
+.note{font:500 13px/1.5 var(--font);color:var(--ink-3);margin:10px 0 0;max-width:90ch}
+
+/* Excel-style charts */
+.xl{background:#fff;border:1px solid #D9D9D9;padding:10px 12px 8px;position:relative;font-family:var(--xl-font);min-width:0}
+:root[data-theme="dark"] .xl{background:var(--paper);border-color:var(--rule)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .xl{background:var(--paper);border-color:var(--rule)}}
+.xl .t{font:400 17px/1.2 var(--xl-font);color:var(--xl-text);text-align:center;margin:0 0 4px}
+.xl svg{width:100%;height:auto;display:block;overflow:visible}
+.xl svg text{font-family:var(--xl-font);fill:var(--xl-text);font-size:14px}
+.xl .lg{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;font:400 14px/1.25 var(--xl-font);color:var(--xl-text);margin-top:2px}
+.xl .lg span{display:inline-flex;align-items:center;gap:5px}
+.xl .lg svg{width:22px;height:10px}
+.xtip{position:absolute;pointer-events:none;background:#fff;color:#404040;border:1px solid #BFBFBF;box-shadow:1px 1px 3px rgba(0,0,0,.2);font:400 13px/1.4 var(--xl-font);padding:5px 8px;white-space:nowrap;opacity:0;transform:translate(-50%,-110%)}
+details.tbl{margin-top:8px;max-width:100%;overflow:hidden}
+details.tbl summary{cursor:pointer;font:600 14px/1 var(--font);color:var(--accent);padding:4px 0}
+.tblwrap{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;font:400 14px/1.3 var(--xl-font);margin-top:6px;min-width:520px;color:var(--ink)}
+th,td{padding:5px 9px;border:1px solid var(--xl-grid);text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+th{background:var(--bar);font-weight:700}
+footer{border-top:1px solid var(--rule);margin-top:30px;padding-top:12px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font:500 13px/1.4 var(--font);color:var(--ink-3)}
+</style>
+
+<div class="sheet">
+  <header class="band">
+    <div>
+      <h1>Ruud Perez</h1>
+      <p class="role">Industrial Engineering at Penn State</p>
+    </div>
+    <div class="contacts">
+      <a href="mailto:ruud.perez@gmail.com"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.5 7.5 8.5 5.5 8.5-5.5"/></svg></span><span class="sel">ruud.perez@gmail.com</span></a>
+      <a href="https://github.com/ruud0"><img class="ic-img" src="img/github.png" alt="" width="22" height="22">github.com/ruud0</a>
+      <span><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 16.4v2.8a1.9 1.9 0 0 1-2.1 1.9 18.6 18.6 0 0 1-8.1-2.9 18.3 18.3 0 0 1-5.6-5.6A18.6 18.6 0 0 1 2.3 4.4 1.9 1.9 0 0 1 4.2 2.3H7a1.9 1.9 0 0 1 1.9 1.6c.1.9.3 1.8.7 2.6a1.9 1.9 0 0 1-.4 2L8 9.7a15 15 0 0 0 5.6 5.6l1.2-1.2a1.9 1.9 0 0 1 2-.4c.8.3 1.7.6 2.6.7a1.9 1.9 0 0 1 1.6 2z" transform="translate(.35 .2)"/></svg></span><span class="sel">(201) 761-9192</span></span>
+    </div>
+  </header>
+
+  <div class="content">
+    <p class="about">I make systems work for the people inside them instead of getting in their way. Each of my projects takes on one part of that: <b>simulating</b> how a network performs under load, deciding where <b>inventory</b> should sit, <b>studying</b> how people actually use a product, <b>controlling</b> equipment safely, and <b>automating</b> the steps that slow work down.</p>
+
+    <!-- 1 -->
+    <section class="proj" id="signals">
+      <div class="bar"><h2>Intersection Control: Signals vs. Scheduling <span class="org">· Penn State IE</span></h2></div>
+      <div class="row top">
+        <figure class="gif"><div class="box"><p class="gt">Fixed-Time (Webster) Signals</p><img src="img/sim-fixed-crop.gif" alt="Animated grid under fixed-time signals with many stopped vehicles queued at intersections" width="422" height="479" loading="lazy"><div class="simlg"><span><i style="background:#2e7db7"></i>Moving</span><span><i style="background:#c1453b"></i>Stopped</span></div></div></figure>
+        <figure class="gif"><div class="box"><p class="gt">Dynamic Scheduling</p><img src="img/sim-sched-crop.gif" alt="Animated grid under dynamic scheduling with vehicles flowing and few stops" width="422" height="479" loading="lazy"><div class="simlg"><span><i style="background:#2e7db7"></i>Moving</span><span><i style="background:#c1453b"></i>Stopped</span></div></div></figure>
+        <div class="xl" id="xl-stops"></div>
+      </div>
+      <div class="row two">
+        <div class="xl" id="xl-delay"></div>
+        <div class="xl" id="xl-ped"></div>
+      </div>
+      <div class="cols">
+        <div><h3>What?</h3><ul>
+          <li>Rebuild a Penn State <b>IE 496</b> study that compared three ways to run a <b>six-signal grid</b> under Prof. Steven Landry</li>
+          <li>Test whether its result, all three within <b>1.9%</b> on clearing time, came from the experiment rather than from traffic</li>
+        </ul></div>
+        <div><h3>How?</h3><ul>
+          <li>Wrote a <b>time-stepped microsimulation</b> in Python with no simulation libraries</li>
+          <li><b>Krauss</b> car-following, <b>Poisson</b> origin-destination demand, <b>MUTCD</b> pedestrian timing</li>
+          <li><b>120 runs</b>: Webster fixed-time, semi-actuated, and reservation scheduling at 5 demand levels × 8 seeds</li>
+        </ul></div>
+        <div><h3>Results</h3><ul>
+          <li>Scheduling cut stops per vehicle <b>4.5 to 5.1×</b></li>
+          <li>Above ~1,800 veh/h <b>semi-actuated wins on delay</b>: 92.1 s vs. 127.7 s at 3,000</li>
+          <li>Pedestrian wait under scheduling rose <b>14.3 s → 34.6 s</b> while signals held near 13 s</li>
+          <li>An occupancy check exposed a <b>safety gap</b> in the scheduler</li>
+        </ul></div>
+      </div>
+      <details class="tbl"><summary>Show the data</summary><div class="tblwrap"><table id="tbl"></table></div></details>
+      <p class="note">Averages of 8 seeds per demand level; 241,938 vehicles simulated. Limits: two-phase signals, one lane per direction, perfect sensing for the scheduler, textbook calibration.</p>
+      <div class="links"><a href="https://colab.research.google.com/github/ruud0/intersection-control-sim/blob/main/notebooks/demo.ipynb">Run it in your browser</a><a href="https://github.com/ruud0/intersection-control-sim">Code and write-up</a><a href="https://github.com/ruud0/intersection-control-sim/blob/main/results/results.csv">Raw data</a></div>
+    </section>
+
+    <!-- 2 -->
+    <section class="proj" id="citibike">
+      <div class="bar"><h2>Citi Bike Rebalance &amp; Refill <span class="org">· Concept Prototype</span></h2></div>
+      <div class="row phones">
+        <figure class="phone"><a href="https://ruud0.github.io/CitiBike-Rebalance-Model/"><img src="img/citibike-rider.jpg" alt="Rider map with station markers showing availability glyphs" width="368" height="768" loading="lazy"></a><figcaption>Rider map</figcaption></figure>
+        <figure class="phone"><a href="https://ruud0.github.io/CitiBike-Rebalance-Model/"><img src="img/citibike-refill.jpg" alt="Empty station sheet with a Refill incoming card and a 5:30 PM truck ETA" width="368" height="768" loading="lazy"></a><figcaption>Refill card on an empty station</figcaption></figure>
+        <figure class="phone"><a href="https://ruud0.github.io/CitiBike-Rebalance-Model/#operator"><img src="img/citibike-operator.jpg" alt="Operator dispatch view with KPIs and a stop list of bikes to take or leave" width="368" height="768" loading="lazy"></a><figcaption>Operator dispatch view</figcaption></figure>
+      </div>
+      <div class="cols">
+        <div><h3>What?</h3><ul>
+          <li>Show riders that an empty station will be <b>refilled</b> before they walk to it</li>
+          <li>Give operators a <b>dispatch view</b> built on the same data</li>
+        </ul></div>
+        <div><h3>How?</h3><ul>
+          <li>Classified each station as <b>surplus or deficit</b> from capacity, target inventory, and current bikes</li>
+          <li>Built rider and operator views in <b>React</b> on real <b>Leaflet / OpenStreetMap</b> tiles</li>
+          <li>Excluded staffed <b>valet stations</b> from truck routing</li>
+        </ul></div>
+        <div><h3>Results</h3><ul>
+          <li>Live, fully navigable prototype with <b>refill ETAs</b>, a notify toggle, and a <b>load/unload stop list</b></li>
+          <li>Station data and the truck route are a scripted demo; next is a <b>demand forecast</b> and a <b>routing solver</b> on public trip data</li>
+        </ul></div>
+      </div>
+      <div class="links"><a href="https://ruud0.github.io/CitiBike-Rebalance-Model/">Try the prototype</a><a href="https://ruud0.github.io/CitiBike-Rebalance-Model/#operator">Operator view</a><a href="https://github.com/ruud0/CitiBike-Rebalance-Model">Code</a></div>
+    </section>
+
+    <!-- 3 -->
+    <section class="proj" id="glance">
+      <div class="bar"><h2>AI Ambient Screen Diary Study <span class="org">· Glance (InMobi Group)</span></h2></div>
+      <div class="cols">
+        <div><h3>What?</h3><ul>
+          <li>Learn how a four-person household actually lives with <b>Glance AI's ambient screens</b> on DirecTV over <b>four weeks</b></li>
+        </ul></div>
+        <div><h3>How?</h3><ul>
+          <li>Directed a remote on-site observer: <b>daily logs, photos, and voice notes</b>, with weekly video check-ins</li>
+          <li>Rolled daily logs into <b>weekly reflections</b>, then a final synthesis</li>
+        </ul></div>
+        <div><h3>Results</h3><ul>
+          <li><b>Synthesis report</b> for the product team ranking content performance</li>
+          <li>Compared <b>trust and engagement</b> by age and comfort with technology, with specific product recommendations</li>
+        </ul></div>
+      </div>
+      <p class="note">UX Research &amp; Data Analyst Intern, March to May 2026. The report and data belong to Glance, so they are not shared here.</p>
+    </section>
+
+    <!-- 4 -->
+    <section class="proj" id="harmonaize">
+      <div class="bar"><h2>Harmonize <span class="org">· MIDI Loop Generator</span></h2></div>
+      <div class="row one">
+        <figure><a href="https://ruud0.github.io/harmonAIze/"><img src="img/harmonaize.jpg" alt="Harmonize piano roll with a generated four-bar loop in C major" width="800" height="500" loading="lazy" style="border:1px solid var(--rule)"></a><figcaption>A generated four-bar loop in C major in the piano roll</figcaption></figure>
+      </div>
+      <div class="cols">
+        <div><h3>What?</h3><ul>
+          <li>Generate a loop in any key and mood as <b>editable MIDI</b> instead of a finished audio file</li>
+          <li>Built with a collaborator</li>
+        </ul></div>
+        <div><h3>How?</h3><ul>
+          <li><b>React, TypeScript, and Tone.js</b> with three separate voices: melody, chords, bass</li>
+          <li>Uses <b>Claude</b> when an API key is set, otherwise a <b>local music-theory generator</b> across nine scale modes</li>
+        </ul></div>
+        <div><h3>Results</h3><ul>
+          <li>Live browser demo with <b>piano-roll editing</b> and no server</li>
+          <li>Exports one <b>multi-track .mid</b> or per-layer <b>stems</b></li>
+        </ul></div>
+      </div>
+      <div class="links"><a href="https://ruud0.github.io/harmonAIze/">Open the demo</a><a href="https://github.com/ruud0/harmonAIze">Code</a></div>
+    </section>
+
+    <!-- 5 -->
+    <section class="proj" id="plc">
+      <div class="bar"><h2>Airport Emergency Door Controller <span class="org">· TECNUN</span></h2></div>
+      <div class="row one">
+        <figure><a href="https://ruud0.github.io/door/"><img src="img/door-sim.gif" alt="Isometric airport gate: the emergency button is held for 5 seconds, the sliding exit door opens, passengers evacuate to the apron, and staff reset the door" width="600" height="507" loading="lazy" style="border:1px solid var(--rule)"></a><figcaption>Emergency button held 5 s, door opens, the gate evacuates, staff reset it. Runs a line-by-line port of our PLC code.</figcaption></figure>
+      </div>
+      <div class="cols">
+        <div><h3>What?</h3><ul>
+          <li>A <b>Beckhoff PLC</b> controller for an airport emergency exit that stays locked in service and opens for an emergency, a camera alert, or a lost connection</li>
+          <li>Team project in industrial automation, <b>taught in Spanish</b>, spring 2026</li>
+        </ul></div>
+        <div><h3>How?</h3><ul>
+          <li>Modeled operating and failure modes in <b>GRAFCET</b> and <b>GEMMA</b>: <b>15 states, 37 transitions</b></li>
+          <li><b>TwinCAT 3</b> on EtherCAT I/O, a stepper-driven door, and a <b>Raspberry Pi</b> camera over <b>OPC UA</b> with a 3 s heartbeat watchdog</li>
+        </ul></div>
+        <div><h3>Results</h3><ul>
+          <li>I wrote the <b>transition logic</b> in the main function block that governs when the controller changes operating modes</li>
+          <li>A <b>fail-open</b> design: if the Pi goes silent for 3 s, the door opens and the alarm sounds</li>
+        </ul></div>
+      </div>
+      <div class="links"><a href="https://ruud0.github.io/door/">Run the simulation</a><a href="https://github.com/OTPLander/AIRPORT_EMERTGENCY_DOOR_G2">PLC code</a></div>
+    </section>
+
+    <!-- 6 -->
+    <section class="proj" id="tools">
+      <div class="bar"><h2>AI Workflow Tools <span class="org">· Python</span></h2></div>
+      <div class="cols">
+        <div><h3>What?</h3><ul>
+          <li>Small servers that connect an AI assistant to the apps I use, each built to <b>remove one bottleneck</b></li>
+        </ul></div>
+        <div><h3>How?</h3><ul>
+          <li><a href="https://github.com/ruud0/daw-mcp"><b>daw-mcp</b></a>: reads and edits <b>Ableton Live</b> project files (levels, panning, compressors, EQs, limiters)</li>
+          <li><a href="https://github.com/ruud0/aula-virtual-mcp"><b>aula-virtual-mcp</b></a>: signs in to <b>Blackboard</b> through the browser with Playwright to pull courses, grades, and files</li>
+          <li><a href="https://github.com/ruud0/claude-relay"><b>claude-relay</b></a>: a <b>message queue</b> that lets separate Claude Code sessions coordinate</li>
+        </ul></div>
+        <div><h3>Results</h3><ul>
+          <li>Used aula-virtual-mcp <b>all semester</b> at TECNUN</li>
+          <li>All three are <b>open source</b> on GitHub</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <footer><span>Ruud Perez · Industrial Engineering · The Pennsylvania State University</span><span><a href="https://ruud0.github.io/">Resume</a> · Updated October 2026</span></footer>
+  </div>
+</div>
+
+<script>
+(function(){
+  const X=[1000,1500,2000,2500,3000];
+  const S=[
+    {name:"Dynamic scheduling",c:"--xl-1",delay:[24.1,54.6,106.5,121.3,127.7],ped:[14.3,21.2,30.5,33.3,34.6],stops:10.04},
+    {name:"Semi-actuated",c:"--xl-2",delay:[36.6,73.5,90.9,90.8,92.1],ped:[12.0,12.5,12.6,12.9,12.9],stops:16.50},
+    {name:"Fixed-time (Webster)",c:"--xl-3",delay:[58.0,147.2,261.0,261.7,288.3],ped:[13.6,13.6,13.6,13.6,13.6],stops:51.47}
+  ];
+  const NS="http://www.w3.org/2000/svg";
+  const el=(n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e};
+  const txt=(a,s)=>{const t=el("text",a);t.textContent=s;return t};
+  const legend=(kind)=>{const d=document.createElement("div");d.className="lg";
+    d.innerHTML=S.map(s=>kind==="col"
+      ?`<span><svg viewBox="0 0 10 10" style="width:9px;height:9px"><rect width="10" height="10" fill="var(${s.c})"/></svg>${s.name}</span>`
+      :`<span><svg viewBox="0 0 22 10"><line x1="1" y1="5" x2="21" y2="5" stroke="var(${s.c})" stroke-width="2.25"/><circle cx="11" cy="5" r="3" fill="var(${s.c})"/></svg>${s.name}</span>`).join("");return d};
+  const tipFor=box=>{const t=document.createElement("div");t.className="xtip";box.appendChild(t);return t};
+
+  function lineChart(id,title,key,max,step,yTitle){
+    const box=document.getElementById(id);
+    box.insertAdjacentHTML("beforeend",`<p class="t">${title}</p>`);
+    const W=400,H=250,m={l:50,r:12,t:10,b:46},iw=W-m.l-m.r,ih=H-m.t-m.b;
+    const sx=i=>m.l+iw*(i+.5)/X.length, sy=v=>m.t+ih-v/max*ih;
+    const svg=el("svg",{viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":`${title}. Values are in the data table.`});
+    for(let v=0;v<=max;v+=step){svg.appendChild(el("line",{x1:m.l,x2:m.l+iw,y1:sy(v),y2:sy(v),stroke:"var(--xl-grid)","stroke-width":.75}));
+      svg.appendChild(txt({x:m.l-6,y:sy(v)+3.5,"text-anchor":"end"},v))}
+    svg.appendChild(el("line",{x1:m.l,x2:m.l+iw,y1:sy(0),y2:sy(0),stroke:"var(--xl-axis)","stroke-width":.75}));
+    X.forEach((x,i)=>svg.appendChild(txt({x:sx(i),y:m.t+ih+18,"text-anchor":"middle"},x.toLocaleString())));
+    svg.appendChild(txt({x:m.l+iw/2,y:H-5,"text-anchor":"middle","font-weight":"700"},"Demand (vehicles per hour)"));
+    svg.appendChild(txt({x:13,y:m.t+ih/2,"text-anchor":"middle",transform:`rotate(-90 13 ${m.t+ih/2})`,"font-weight":"700"},yTitle));
+    S.forEach(s=>{const pts=s[key].map((v,i)=>`${sx(i).toFixed(1)},${sy(v).toFixed(1)}`).join(" ");
+      svg.appendChild(el("polyline",{points:pts,fill:"none",stroke:`var(${s.c})`,"stroke-width":2.25,"stroke-linejoin":"round"}));
+      s[key].forEach((v,i)=>svg.appendChild(el("circle",{cx:sx(i),cy:sy(v),r:3,fill:`var(${s.c})`})))});
+    const cross=el("line",{y1:m.t,y2:m.t+ih,stroke:"var(--xl-axis)","stroke-width":1,opacity:0});svg.appendChild(cross);
+    const hit=el("rect",{x:m.l,y:m.t,width:iw,height:ih,fill:"transparent"});svg.appendChild(hit);
+    box.appendChild(svg);box.appendChild(legend("line"));
+    const tip=tipFor(box);
+    const show=e=>{const r=svg.getBoundingClientRect(),px=(e.clientX-r.left)/r.width*W;let i=Math.max(0,Math.min(4,Math.floor((px-m.l)/iw*X.length)));
+      cross.setAttribute("x1",sx(i));cross.setAttribute("x2",sx(i));cross.setAttribute("opacity",1);
+      tip.innerHTML=`<b>${X[i].toLocaleString()} veh/h</b><br>`+S.map(s=>`${s.name}: ${s[key][i].toFixed(1)} s`).join("<br>");
+      const bx=box.getBoundingClientRect();let left=r.left-bx.left+sx(i)/W*r.width;left=Math.max(95,Math.min(bx.width-95,left));
+      tip.style.left=left+"px";tip.style.top=(r.top-bx.top+40)+"px";tip.style.opacity=1};
+    hit.addEventListener("pointermove",show);hit.addEventListener("pointerdown",show);
+    hit.addEventListener("pointerleave",()=>{tip.style.opacity=0;cross.setAttribute("opacity",0)});
+  }
+
+  function columnChart(id,title){
+    const box=document.getElementById(id);
+    box.insertAdjacentHTML("beforeend",`<p class="t">${title}</p>`);
+    const W=250,H=280,m={l:32,r:6,t:12,b:30},iw=W-m.l-m.r,ih=H-m.t-m.b,max=60;
+    const sy=v=>m.t+ih-v/max*ih;
+    const svg=el("svg",{viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":`${title}: fixed-time 51.47, semi-actuated 16.50, dynamic scheduling 10.04.`});
+    for(let v=0;v<=max;v+=10){svg.appendChild(el("line",{x1:m.l,x2:m.l+iw,y1:sy(v),y2:sy(v),stroke:"var(--xl-grid)","stroke-width":.75}));
+      svg.appendChild(txt({x:m.l-6,y:sy(v)+3.5,"text-anchor":"end"},v))}
+    svg.appendChild(el("line",{x1:m.l,x2:m.l+iw,y1:sy(0),y2:sy(0),stroke:"var(--xl-axis)","stroke-width":.75}));
+    const bw=iw/3*0.6;
+    S.forEach((s,i)=>{const cx=m.l+iw*(i+.5)/3,y=sy(s.stops);
+      const r=el("rect",{x:cx-bw/2,y,width:bw,height:sy(0)-y,fill:`var(${s.c})`});svg.appendChild(r);
+      svg.appendChild(txt({x:cx,y:y-5,"text-anchor":"middle"},s.stops.toFixed(1)));
+      const tip=box.__tip||(box.__tip=tipFor(box));
+      r.addEventListener("pointermove",()=>{const rr=svg.getBoundingClientRect(),bx=box.getBoundingClientRect();
+        tip.innerHTML=`<b>${s.name}</b><br>${s.stops.toFixed(2)} stops per vehicle`;tip.style.left=(rr.left-bx.left+cx/W*rr.width)+"px";tip.style.top=(rr.top-bx.top+y/H*rr.height)+"px";tip.style.opacity=1});
+      r.addEventListener("pointerleave",()=>tip.style.opacity=0)});
+    svg.appendChild(txt({x:m.l+iw/2,y:H-8,"text-anchor":"middle"},"At 2,000 vehicles per hour"));
+    box.appendChild(svg);box.appendChild(legend("col"));
+  }
+
+  columnChart("xl-stops","Stops per Vehicle");
+  lineChart("xl-delay","Mean Vehicle Delay","delay",300,50,"Seconds");
+  lineChart("xl-ped","Mean Pedestrian Wait","ped",40,5,"Seconds");
+
+  let h="<thead><tr><th>Controller</th><th>Measure</th>"+X.map(x=>`<th>${x.toLocaleString()} veh/h</th>`).join("")+"</tr></thead><tbody>";
+  S.forEach(s=>{h+=`<tr><td>${s.name}</td><td>Vehicle delay (s)</td>${s.delay.map(v=>`<td>${v.toFixed(1)}</td>`).join("")}</tr><tr><td>${s.name}</td><td>Pedestrian wait (s)</td>${s.ped.map(v=>`<td>${v.toFixed(1)}</td>`).join("")}</tr>`});
+  document.getElementById("tbl").innerHTML=h+"</tbody>";
+})();
+</script>
+
+</html>

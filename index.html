@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ruud Perez | Industrial Engineering</title>
+<meta name="description" content="Resume and projects of Ruud Perez, Industrial Engineering at Penn State: simulation, operations and supply chain analytics.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap">
+<style>
+/* Same sheet as the projects page: light-blue header band, a title bar per section. */
+:root{
+  --desk:#e6e9ec; --paper:#ffffff; --ink:#1b2230; --ink-2:#3c4555; --ink-3:#6b7382;
+  --band-a:#c9d9e4; --band-b:#eef3f6; --bar:#dcebf3; --navy:#16243a; --rule:#d5dbe0; --accent:#1f6f8b;
+  --font:"Montserrat","Avenir Next","Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --desk:#0f1215; --paper:#181c21; --ink:#e9edf1; --ink-2:#bcc4cc; --ink-3:#8d96a0;
+  --band-a:#22313d; --band-b:#1b232b; --bar:#1f2e38; --navy:#d9e6f0; --rule:#2c343b; --accent:#5fb6c6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --desk:#0f1215; --paper:#181c21; --ink:#e9edf1; --ink-2:#bcc4cc; --ink-3:#8d96a0;
+  --band-a:#22313d; --band-b:#1b232b; --bar:#1f2e38; --navy:#d9e6f0; --rule:#2c343b; --accent:#5fb6c6; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--desk);color:var(--ink);font:400 15px/1.55 var(--font);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px}
+a{color:var(--accent);text-underline-offset:2px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sheet{max-width:860px;margin:0 auto;background:var(--paper);box-shadow:0 1px 2px rgba(0,0,0,.06),0 12px 40px rgba(20,30,40,.12)}
+@media (max-width:640px){body{padding-block:16px}}
+
+.band{background:linear-gradient(90deg,var(--band-a),var(--band-b));padding:26px 36px 22px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+.band h1{font:900 clamp(30px,5.4vw,46px)/1 var(--font);letter-spacing:.01em;margin:0 0 10px;color:var(--navy);text-transform:uppercase}
+.band .role{font:700 13.5px/1.4 var(--font);letter-spacing:.06em;text-transform:uppercase;margin:0;color:var(--navy)}
+.contacts{display:grid;gap:8px;padding-left:24px;border-left:3px solid var(--navy);font:500 14px/1.2 var(--font)}
+.contacts a,.contacts span{display:flex;align-items:center;gap:9px;color:var(--ink);text-decoration:none}
+.contacts a:hover{text-decoration:underline}
+.ic{width:22px;height:22px;border-radius:50%;background:#1f2328;display:flex;align-items:center;justify-content:center;flex:none}
+.ic svg{display:block;width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic-img{width:22px;height:22px;flex:none;display:block;background:#fff;border-radius:50%}
+@media (max-width:640px){.band{grid-template-columns:minmax(0,1fr);padding:22px 20px}.contacts{padding-left:14px}}
+
+.actions{display:flex;flex-wrap:wrap;gap:10px;padding:16px 36px 0}
+.btn{display:inline-flex;align-items:center;gap:8px;font:700 14px/1 var(--font);text-decoration:none;padding:11px 14px;border-radius:4px;border:1.5px solid var(--navy);color:var(--navy)}
+.btn.primary{background:var(--navy);color:var(--paper)}
+.btn:hover{filter:brightness(1.12)}
+.btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+.content{padding:8px 36px 36px}
+@media (max-width:640px){.actions{padding:14px 20px 0}.content{padding:4px 20px 28px}}
+section{margin-top:22px}
+.bar{background:var(--bar);padding:8px 14px;margin:0 0 12px}
+.bar h2{font:800 15px/1.25 var(--font);letter-spacing:.06em;text-transform:uppercase;margin:0;color:var(--navy)}
+.summary{margin:0;color:var(--ink-2);max-width:80ch}
+.entry{margin:0 0 14px}
+.entry:last-child{margin-bottom:0}
+.eh{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 16px}
+.eh h3{font:700 15.5px/1.35 var(--font);margin:0;color:var(--ink)}
+.eh .when{font:500 13.5px/1.35 var(--font);color:var(--ink-3);white-space:nowrap}
+.sub{font:500 14px/1.4 var(--font);color:var(--ink-3);margin:1px 0 6px}
+ul{margin:0;padding-left:18px;display:grid;gap:4px}
+li{font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+li b{color:var(--navy)}
+.links{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:7px;font:600 13.5px/1.3 var(--font)}
+.links a::after{content:" \2197";font-weight:500}
+.skills{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;margin:0}
+.skills dt{font:700 14px/1.5 var(--font);color:var(--ink)}
+.skills dd{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+@media (max-width:640px){.skills{grid-template-columns:minmax(0,1fr)}.skills dd{margin-bottom:6px}}
+footer{border-top:1px solid var(--rule);margin-top:28px;padding-top:12px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font:500 13px/1.4 var(--font);color:var(--ink-3)}
+
+@media print{
+  body{background:#fff;padding:0}
+  .sheet{box-shadow:none;max-width:none}
+  .actions{display:none}
+  .links a::after{content:""}
+}
+
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ic,:root:not([data-theme="light"]) .ic-img{border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,255,255,.55)}}
+:root[data-theme="dark"] .ic,:root[data-theme="dark"] .ic-img{border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,255,255,.55)}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header class="band">
+    <div>
+      <h1>Ruud Perez</h1>
+      <p class="role">Industrial Engineering at Penn State<br>Simulation, Operations &amp; Supply Chain Analytics</p>
+    </div>
+    <div class="contacts">
+      <a href="mailto:ruud.perez@gmail.com"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.5 7.5 8.5 5.5 8.5-5.5"/></svg></span>ruud.perez@gmail.com</a>
+      <a href="https://github.com/ruud0"><img class="ic-img" src="img/github.png" alt="" width="22" height="22">github.com/ruud0</a>
+      <a href="tel:+12017619192"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 16.4v2.8a1.9 1.9 0 0 1-2.1 1.9 18.6 18.6 0 0 1-8.1-2.9 18.3 18.3 0 0 1-5.6-5.6A18.6 18.6 0 0 1 2.3 4.4 1.9 1.9 0 0 1 4.2 2.3H7a1.9 1.9 0 0 1 1.9 1.6c.1.9.3 1.8.7 2.6a1.9 1.9 0 0 1-.4 2L8 9.7a15 15 0 0 0 5.6 5.6l1.2-1.2a1.9 1.9 0 0 1 2-.4c.8.3 1.7.6 2.6.7a1.9 1.9 0 0 1 1.6 2z" transform="translate(.35 .2)"/></svg></span>(201) 761-9192</a>
+    </div>
+  </header>
+
+  <nav class="actions" aria-label="Resume actions">
+    <a class="btn primary" href="Ruud_Perez_Resume.pdf" download><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>Download PDF</a>
+    <a class="btn" href="projects/"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></svg>See all projects</a>
+  </nav>
+
+  <main class="content">
+    <section>
+      <div class="bar"><h2>Summary</h2></div>
+      <p class="summary">Industrial Engineering student (May 2027) who builds simulation and capacity models to test operating strategies. Best result so far: showing that a scheduler that cut vehicle stops about fivefold also more than doubled pedestrian wait.</p>
+    </section>
+
+    <section>
+      <div class="bar"><h2>Education</h2></div>
+      <div class="entry">
+        <div class="eh"><h3>The Pennsylvania State University</h3><span class="when">Expected May 2027</span></div>
+        <p class="sub">B.S. Industrial Engineering</p>
+        <ul>
+          <li>Relevant coursework: Operations Research, Stochastic Operations Research, Service Systems Engineering (supply chain), Statistical Methods, Industrial Automation, Numerical Methods</li>
+          <li>Study abroad: TECNUN, Universidad de Navarra, San Sebastián, Spain, Spring 2026 (courses taught in Spanish)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="bar"><h2>Experience</h2></div>
+      <div class="entry">
+        <div class="eh"><h3>Research Assistant, The Pennsylvania State University</h3><span class="when">Aug to Dec 2025; extended 2026</span></div>
+        <ul>
+          <li>Built the Python dynamic-scheduler model, run visualizations, and report for Prof. Steven Landry's study comparing traffic signal control with reservation-based scheduling at urban intersections.</li>
+          <li>Extended the study independently in 2026: rebuilt it as a from-scratch Python microsimulation of a six-signal grid with pedestrians as agents, then tested fixed-time, semi-actuated, and reservation control at five demand levels, eight seeds each (<b>120 runs, 241,938 vehicles</b>).</li>
+          <li>Found that reservation scheduling cut stops per vehicle <b>4.5 to 5.1 times</b>, but under heavy demand raised mean pedestrian wait from <b>14.3 s to 34.6 s</b> while signal control held near 13 s. The original study could not show this because it did not model pedestrians.</li>
+          <li>Added an intersection occupancy check that exposed a safety gap in the initially favored reservation controller.</li>
+        </ul>
+        <div class="links"><a href="projects/#signals">Results and charts</a><a href="https://colab.research.google.com/github/ruud0/intersection-control-sim/blob/main/notebooks/demo.ipynb">Run it in your browser</a><a href="https://github.com/ruud0/intersection-control-sim">Code and write-up</a></div>
+      </div>
+      <div class="entry">
+        <div class="eh"><h3>UX Research &amp; Data Analyst Intern, Glance (InMobi Group)</h3><span class="when">Mar to May 2026</span></div>
+        <ul>
+          <li>Led a four-week diary study of how a four-person household used Glance AI's ambient screens on DirecTV, directing a remote on-site observer through daily logs, photos, and voice notes.</li>
+          <li>Compared how trust in and engagement with AI recommendations differed by age and tech comfort, and delivered a synthesis report with a ranking of content performance and specific product recommendations to the Glance team.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="bar"><h2>Projects</h2></div>
+      <div class="entry">
+        <div class="eh"><h3>Citi Bike Rebalance &amp; Refill Concept Prototype</h3><span class="when">React, Leaflet, 2026</span></div>
+        <ul>
+          <li>Prototyped a rider map and an operator dispatch view so a rider knows when an empty station will be refilled, instead of walking to it and guessing.</li>
+          <li>Classified each station as surplus or deficit from its capacity, target inventory, and current bikes; that status drives the rider's "refill incoming" card and the operator's load/unload stop list, with staffed valet stations excluded from truck routing.</li>
+          <li>Truck routes and quantities currently run on a scripted demo scenario; a demand forecast and routing solver on Citi Bike trip data are the planned next phase.</li>
+        </ul>
+        <div class="links"><a href="https://ruud0.github.io/CitiBike-Rebalance-Model/">Try the prototype</a><a href="https://ruud0.github.io/CitiBike-Rebalance-Model/#operator">Operator view</a><a href="https://github.com/ruud0/CitiBike-Rebalance-Model">Code</a></div>
+      </div>
+      <div class="entry">
+        <div class="eh"><h3>Airport Emergency Door Controller, TECNUN</h3><span class="when">TwinCAT 3, GRAFCET/GEMMA, Spring 2026</span></div>
+        <ul>
+          <li>Wrote the state-transition logic for a team-built Beckhoff PLC controller for an airport emergency door with alarm signaling, designed in GRAFCET/GEMMA and implemented in TwinCAT 3.</li>
+          <li>Built an interactive simulation of the gate that runs a line-by-line port of our PLC code.</li>
+        </ul>
+        <div class="links"><a href="door/">Run the simulation</a><a href="https://github.com/OTPLander/AIRPORT_EMERTGENCY_DOOR_G2">PLC code</a></div>
+      </div>
+      <div class="entry">
+        <div class="eh"><h3>Harmonize, MIDI Loop Generator</h3><span class="when">React, TypeScript, Tone.js</span></div>
+        <ul>
+          <li>Built with a collaborator: generates a loop in any key and mood as editable MIDI, with separate melody, chord, and bass voices and multi-track or per-layer export.</li>
+        </ul>
+        <div class="links"><a href="https://ruud0.github.io/harmonAIze/">Open the demo</a><a href="https://github.com/ruud0/harmonAIze">Code</a></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="bar"><h2>Skills</h2></div>
+      <dl class="skills">
+        <dt>Modeling &amp; Analysis</dt><dd>Python; MATLAB; Excel; time-stepped and Monte Carlo simulation; Poisson and origin-destination demand; p95 tail analysis</dd>
+        <dt>Operations</dt><dd>Capacity and flow analysis; inventory and replenishment; routing and scheduling; scenario comparison</dd>
+        <dt>Engineering Tools</dt><dd>SolidWorks; Creo; TwinCAT 3 (PLC); React; Git/GitHub; Playwright</dd>
+        <dt>Languages</dt><dd>English; Spanish (bilingual)</dd>
+      </dl>
+    </section>
+
+    <footer><span>Ruud Perez · Industrial Engineering · The Pennsylvania State University</span><span><a href="projects/">All projects</a> · Updated October 2026</span></footer>
+  </main>
+</div>
+</body>
+</html>
